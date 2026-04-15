@@ -1114,6 +1114,8 @@ function refreshCurrentView(){
   if(q==='ranking')renderRanking();
   else if(cur==='team')renderTeam();
   else{const ci=parseInt(cur);renderHeader(team[ci],ci);renderKPIs(team[ci]);renderMetas(team[ci]);renderListings(team[ci]);renderChart(team[ci]);}
+  // Keep Resultados in sync
+  if(window._resultadosInited && typeof render === 'function') render();
 }
 
 function buildRecordSelects(){
@@ -1389,6 +1391,8 @@ async function loadFromSupabase() {
     renderVentasTable();
     renderListingsTable();
     refreshCurrentView();
+    window._resultadosInited = true;
+    render(); // sync Resultados with loaded data
     showToast('Datos cargados ✓');
   } catch(e) {
     console.error('Error loading from Supabase:', e);
@@ -1718,12 +1722,23 @@ const OBJ = [
   {venta:25000000,ingreso:750000},{venta:30000000,ingreso:900000},{venta:25000000,ingreso:750000},
 ];
 
-let V = [
-  {venta:3331406,ingreso:115060,ops:5},{venta:13586848,ingreso:395936,ops:5},
-  {venta:13114300,ingreso:337499,ops:5},{venta:4350000,ingreso:87000,ops:1},
-  {venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},
-  {venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},
-];
+// V[] is now computed dynamically from ventasDB (shared with Realtors)
+function computeV() {
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const v = months.map(() => ({venta:0, ingreso:0, ops:0}));
+  if(typeof ventasDB !== 'undefined') {
+    ventasDB.forEach(r => {
+      const idx = months.indexOf(r.mes);
+      if(idx >= 0) {
+        v[idx].venta  += r.monto || 0;
+        v[idx].ingreso += r.disp  || 0;
+        v[idx].ops    += 1;
+      }
+    });
+  }
+  return v;
+}
+let V = computeV();
 
 let chartInstance = null;
 let currentChartType = 'ventas';
@@ -1757,13 +1772,44 @@ function addOp() {
   if (!venta||venta<=0){err.textContent='Ingresa un valor de venta.';return;}
   if (isNaN(p)||p<=0){err.textContent='Ingresa un % de comisión.';return;}
   err.textContent='';
-  const idx=MESES.indexOf(mes);
-  V[idx].venta+=venta; V[idx].ingreso+=venta*p/100; V[idx].ops+=ops;
+  const disp = venta*p/100;
+  // Build a minimal record compatible with ventasDB format
+  const rec = {
+    q: mesToQ(mes), mes: mes, un: 'Brokerage', tipo: 'Venta', ch: 'No',
+    asesor: '', cliente: '', opcionador: '', origen: '', autogen: 'No',
+    m2: 0, pm2: 0, unidad: '', proyecto: '',
+    monto: venta, comTot: p, comTrust: p, disp: disp
+  };
+  // Save to Supabase
+  const sbRow = {q:rec.q,mes:rec.mes,un:rec.un,tipo:rec.tipo,ch:rec.ch,
+    asesor:rec.asesor,cliente:rec.cliente,opcionador:rec.opcionador,
+    origen:rec.origen,autogen:rec.autogen,m2:rec.m2,pm2:rec.pm2,
+    unidad:rec.unidad,proyecto:rec.proyecto,monto:rec.monto,
+    com_tot:rec.comTot,com_trust:rec.comTrust,disp:rec.disp};
+  if(typeof sbInsert !== 'undefined') {
+    sbInsert('ventas', sbRow).then(saved => {
+      if(saved) rec._id = saved.id;
+      ventasDB.push(rec);
+      if(typeof initFromDB !== 'undefined') initFromDB();
+      refreshAllModules();
+    });
+  } else {
+    ventasDB.push(rec);
+    refreshAllModules();
+  }
   document.getElementById('fVenta').value='';
   document.getElementById('fPct').value='';
   document.getElementById('fOps').value='1';
-  render();
-  if (chartInstance) drawChart(currentChartType);
+}
+
+function mesToQ(mes) {
+  const q1 = ['Enero','Febrero','Marzo'];
+  const q2 = ['Abril','Mayo','Junio'];
+  const q3 = ['Julio','Agosto','Septiembre'];
+  if(q1.includes(mes)) return 'q1';
+  if(q2.includes(mes)) return 'q2';
+  if(q3.includes(mes)) return 'q3';
+  return 'q4';
 }
 function openChart() {
   document.getElementById('overlay').classList.add('open');
@@ -1874,6 +1920,7 @@ function drawChart(type) {
 }
 
 function render() {
+  V = computeV(); // sync from shared ventasDB
   let aV=0,aI=0,aOV=0,aOI=0,aOps=0,rows='';
   MESES.forEach((m,i)=>{
     aV+=V[i].venta; aI+=V[i].ingreso; aOV+=OBJ[i].venta; aOI+=OBJ[i].ingreso; aOps+=V[i].ops;
@@ -1937,6 +1984,18 @@ render();
 
 <!-- ═══════════════════ HUB NAVIGATION ═══════════════════ -->
 <script>
+// ── SHARED REFRESH — updates ALL modules after any data change ──
+function refreshAllModules() {
+  // Refresh Resultados
+  render();
+  if(typeof chartInstance !== 'undefined' && chartInstance) drawChart(currentChartType);
+  // Refresh Realtors if initialized
+  if(window._realtorsInited) {
+    if(typeof refreshCurrentView !== 'undefined') refreshCurrentView();
+    if(typeof renderRanking !== 'undefined' && document.getElementById('rankSection') && document.getElementById('rankSection').style.display !== 'none') renderRanking();
+  }
+}
+
 function goTo(module) {
   document.getElementById('hubPage').style.display = 'none';
   document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
@@ -2031,12 +2090,23 @@ const OBJ = [
   {venta:25000000,ingreso:750000},{venta:30000000,ingreso:900000},{venta:25000000,ingreso:750000},
 ];
 
-let V = [
-  {venta:3331406,ingreso:115060,ops:5},{venta:13586848,ingreso:395936,ops:5},
-  {venta:13114300,ingreso:337499,ops:5},{venta:4350000,ingreso:87000,ops:1},
-  {venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},
-  {venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},
-];
+// V[] is now computed dynamically from ventasDB (shared with Realtors)
+function computeV() {
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const v = months.map(() => ({venta:0, ingreso:0, ops:0}));
+  if(typeof ventasDB !== 'undefined') {
+    ventasDB.forEach(r => {
+      const idx = months.indexOf(r.mes);
+      if(idx >= 0) {
+        v[idx].venta  += r.monto || 0;
+        v[idx].ingreso += r.disp  || 0;
+        v[idx].ops    += 1;
+      }
+    });
+  }
+  return v;
+}
+let V = computeV();
 
 let chartInstance = null;
 let currentChartType = 'ventas';
@@ -2070,13 +2140,44 @@ function addOp() {
   if (!venta||venta<=0){err.textContent='Ingresa un valor de venta.';return;}
   if (isNaN(p)||p<=0){err.textContent='Ingresa un % de comisión.';return;}
   err.textContent='';
-  const idx=MESES.indexOf(mes);
-  V[idx].venta+=venta; V[idx].ingreso+=venta*p/100; V[idx].ops+=ops;
+  const disp = venta*p/100;
+  // Build a minimal record compatible with ventasDB format
+  const rec = {
+    q: mesToQ(mes), mes: mes, un: 'Brokerage', tipo: 'Venta', ch: 'No',
+    asesor: '', cliente: '', opcionador: '', origen: '', autogen: 'No',
+    m2: 0, pm2: 0, unidad: '', proyecto: '',
+    monto: venta, comTot: p, comTrust: p, disp: disp
+  };
+  // Save to Supabase
+  const sbRow = {q:rec.q,mes:rec.mes,un:rec.un,tipo:rec.tipo,ch:rec.ch,
+    asesor:rec.asesor,cliente:rec.cliente,opcionador:rec.opcionador,
+    origen:rec.origen,autogen:rec.autogen,m2:rec.m2,pm2:rec.pm2,
+    unidad:rec.unidad,proyecto:rec.proyecto,monto:rec.monto,
+    com_tot:rec.comTot,com_trust:rec.comTrust,disp:rec.disp};
+  if(typeof sbInsert !== 'undefined') {
+    sbInsert('ventas', sbRow).then(saved => {
+      if(saved) rec._id = saved.id;
+      ventasDB.push(rec);
+      if(typeof initFromDB !== 'undefined') initFromDB();
+      refreshAllModules();
+    });
+  } else {
+    ventasDB.push(rec);
+    refreshAllModules();
+  }
   document.getElementById('fVenta').value='';
   document.getElementById('fPct').value='';
   document.getElementById('fOps').value='1';
-  render();
-  if (chartInstance) drawChart(currentChartType);
+}
+
+function mesToQ(mes) {
+  const q1 = ['Enero','Febrero','Marzo'];
+  const q2 = ['Abril','Mayo','Junio'];
+  const q3 = ['Julio','Agosto','Septiembre'];
+  if(q1.includes(mes)) return 'q1';
+  if(q2.includes(mes)) return 'q2';
+  if(q3.includes(mes)) return 'q3';
+  return 'q4';
 }
 function openChart() {
   document.getElementById('overlay').classList.add('open');
@@ -2187,6 +2288,7 @@ function drawChart(type) {
 }
 
 function render() {
+  V = computeV(); // sync from shared ventasDB
   let aV=0,aI=0,aOV=0,aOI=0,aOps=0,rows='';
   MESES.forEach((m,i)=>{
     aV+=V[i].venta; aI+=V[i].ingreso; aOV+=OBJ[i].venta; aOI+=OBJ[i].ingreso; aOps+=V[i].ops;
@@ -2888,6 +2990,8 @@ function refreshCurrentView(){
   if(q==='ranking')renderRanking();
   else if(cur==='team')renderTeam();
   else{const ci=parseInt(cur);renderHeader(team[ci],ci);renderKPIs(team[ci]);renderMetas(team[ci]);renderListings(team[ci]);renderChart(team[ci]);}
+  // Keep Resultados in sync
+  if(window._resultadosInited && typeof render === 'function') render();
 }
 
 function buildRecordSelects(){
@@ -3163,6 +3267,8 @@ async function loadFromSupabase() {
     renderVentasTable();
     renderListingsTable();
     refreshCurrentView();
+    window._resultadosInited = true;
+    render(); // sync Resultados with loaded data
     showToast('Datos cargados ✓');
   } catch(e) {
     console.error('Error loading from Supabase:', e);
