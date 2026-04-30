@@ -1018,7 +1018,7 @@ function rp(a){
   return pos<=3?['🥇','🥈','🥉'][pos-1]+' #'+pos:'#'+pos;
 }
 
-function fm(n){if(!n||n===0)return'$0';if(n>=1000000)return'$'+(n/1000000).toFixed(2).replace(/\.?0+$/,'')+'M';if(n>=1000)return'$'+Math.round(n/1000)+'K';return'$'+n.toLocaleString('es-MX');}
+function fm(n){if(!n||n===0)return'$0';const r=Math.round(n*100)/100;return'$'+r.toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function ff(n){return'$'+Math.round(n).toLocaleString('es-MX');}
 function pct(v,m){return Math.min(Math.round((v/m)*100),999);}
 function isp(){return q==='q3'||q==='q4';}
@@ -2092,13 +2092,12 @@ function switchRecTabR(tab) {
   document.getElementById('recListingsViewR').style.display = tab==='listings'?'block':'none';
 }
 
-function fmtMR(n) {
+function fmtMR(n){
   if(!n||n===0) return '$0';
-  if(n>=1000000) return '$'+(n/1000000).toFixed(2).replace(/\.?0+$/,'')+'M';
-  if(n>=1000) return '$'+Math.round(n/1000)+'K';
-  return '$'+n.toLocaleString('es-MX');
+  const r=Math.round(n*100)/100;
+  return '$'+r.toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2});
 }
-function fmtFullR(n) { return '$'+Math.round(n).toLocaleString('es-MX'); }
+function fmtFullR(n){if(!n||n===0)return'$0';const r=Math.round(n*100)/100;return'$'+r.toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2});}
 
 function asesorAvR(name) {
   const teams = typeof team !== 'undefined' ? team : [];
