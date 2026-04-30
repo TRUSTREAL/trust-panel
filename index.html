@@ -88,6 +88,16 @@
 .btn-save{padding:10px 24px;background:#1A1916;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:#fff;}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1A1916;color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;font-weight:500;z-index:3000;opacity:0;transition:opacity 0.3s;pointer-events:none;font-family:'DM Sans',sans-serif;}
 .toast.show{opacity:1;}
+
+.res-qtab{padding:8px 18px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:#6B6A66;transition:all 0.15s;}
+.res-qtab.active{background:#1A1916;color:#fff;border-color:#1A1916;}
+.res-kpi-card{background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:20px 22px;}
+.res-kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#A09F9B;margin-bottom:8px;}
+.res-kpi-val{font-size:24px;font-weight:600;color:#1A1916;letter-spacing:-0.5px;}
+.res-kpi-sub{font-size:12px;color:#A09F9B;margin-top:4px;}
+.res-kpi-pct{font-size:13px;font-weight:600;margin-top:6px;}
+.up{color:#0F6E56;}.down{color:#C0392B;}.neutral{color:#E67E22;}
+
 /* ── REALTORS MODULE ── */
 
 :root{--bg:#F5F4F0;--surface:#FFF;--surface2:#EDECEA;--border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);--text:#1A1916;--text2:#6B6A66;--text3:#A09F9B;--green:#1D9E75;--green-bg:#E1F5EE;--green-txt:#085041;--blue:#185FA5;--blue-bg:#E6F1FB;--blue-txt:#0C447C;--red:#D85A30;--red-bg:#FAECE7;--red-txt:#712B13;--amber:#BA7517;--amber-bg:#FAEEDA;--amber-txt:#633806;--shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 8px rgba(0,0,0,0.04);--shadow-md:0 4px 16px rgba(0,0,0,0.08);}
@@ -268,6 +278,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 /* ── RESULTADOS MODULE ── */
 .mod-resultados{padding:32px 24px;max-width:1400px;margin:0 auto;}
+/* Resultados table */
+#resTbody tr td { padding:14px 12px; border-bottom:1px solid rgba(0,0,0,0.06); color:#1A1916; }
+#resTbody tr td:first-child { padding-left:20px; }
+#resTbody tr td:last-child { padding-right:20px; }
+#resTbody tr.future-row td { color:#A09F9B; }
+#resTbody tr.total-row td { padding:14px 12px; border-top:2px solid #1A1916; background:#F5F4F0; font-weight:600; }
+#resTbody tr.total-row td:first-child { padding-left:20px; }
+#resTbody tr.total-row td:last-child { padding-right:20px; }
+#resTbody td.num { text-align:right; font-family:'DM Mono',monospace; font-size:12px; }
+.up { color:#085041; font-weight:600; }
+.neutral { color:#633806; }
+.down { color:#C0392B; font-weight:600; }
+.kpi-card { background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:12px; padding:20px; }
+.kpi-label { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:#A09F9B; font-weight:500; margin-bottom:8px; }
+.kpi-val { font-size:26px; font-weight:600; color:#1A1916; letter-spacing:-0.5px; }
+.kpi-sub { font-size:11px; margin-top:4px; }
+
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; background: #f5f5f3; color: #1a1a1a; padding: 32px 24px; }
@@ -561,317 +588,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <span class="back-bar-name">Resultados</span>
   </div>
   <div class="mod-resultados">
-<div class="wrap">
-  <h1>Reporte de ventas 2026</h1>
-  <p class="subtitle">Inmobiliaria — seguimiento mensual de venta e ingresos por comisión</p>
-  <div class="grid-4" id="cards-top" style="margin-bottom:10px;"></div>
-  <div class="grid-4" id="cards-bottom" style="margin-bottom:20px;"></div>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead>
-        <tr class="hg">
-          <th class="hg-mes">Mes</th>
-          <th class="hg-obj" colspan="2">Objetivos</th>
-          <th class="hg-real sep" colspan="4">Real</th>
-          <th class="hg-av sep" colspan="2">Avance mensual</th>
-          <th class="hg-acum sep" colspan="4">Acumulado</th>
-        </tr>
-        <tr class="sh">
-          <th>Mes</th><th>Obj. venta</th><th>Obj. ingreso</th>
-          <th class="sep">Ops.</th><th>Venta real</th><th>Ingreso real</th><th>% Comisión</th>
-          <th class="sep">% Venta</th><th>% Ingreso</th>
-          <th class="sep">Acum. venta</th><th>Acum. ingreso</th><th>% Acum. venta</th><th>% Acum. ingreso</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-      <tfoot id="tfoot"></tfoot>
-    </table>
-  </div>
-
-  <div class="action-bar">
-    <button class="btn btn-chart" onclick="openChartR()">Ver gráfica de avance ↗</button>
-    <button class="btn btn-primary" onclick="toggleFormR()">+ Registrar operación</button>
-  </div>
-
-  <div class="form-section" id="formSection" style="display:none;">
-    <div class="form-section-title">Nueva operación</div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Mes</label>
-        <select id="fMes" style="width:130px;">
-          <option>Enero</option><option>Febrero</option><option>Marzo</option><option selected>Abril</option>
-          <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
-          <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Valor de venta ($)</label>
-        <input type="number" id="fVenta" placeholder="0" min="0" step="1000" style="width:170px;">
-      </div>
-      <div class="form-group">
-        <label>Comisión %</label>
-        <input type="number" id="fPct" placeholder="ej. 3" min="0" max="20" step="0.1" style="width:110px;">
-      </div>
-      <div class="form-group">
-        <label>Operaciones</label>
-        <input type="number" id="fOps" value="1" min="1" step="1" style="width:100px;">
-      </div>
-      <div class="form-group">
-        <label>&nbsp;</label>
-        <button class="btn btn-primary" onclick="addOpR()">Guardar</button>
-      </div>
+    <div style="margin-bottom:24px;">
+      <div style="font-size:22px;font-weight:600;color:#1A1916;letter-spacing:-0.3px;">Reporte de ventas 2026</div>
+      <div style="font-size:13px;color:#A09F9B;margin-top:4px;">Seguimiento trimestral de ventas e ingresos</div>
     </div>
-    <div class="err" id="fErr"></div>
+    <div id="resKPIs" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button class="res-qtab active" data-q="all" onclick="setResQ('all')">Anual</button>
+      <button class="res-qtab" data-q="q1" onclick="setResQ('q1')">Q1</button>
+      <button class="res-qtab" data-q="q2" onclick="setResQ('q2')">Q2</button>
+      <button class="res-qtab" data-q="q3" onclick="setResQ('q3')">Q3</button>
+      <button class="res-qtab" data-q="q4" onclick="setResQ('q4')">Q4</button>
+    </div>
+    <div style="background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,0.08);overflow:hidden;margin-bottom:24px;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;" id="resTable"></table>
+    </div>
+    <div style="background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,0.08);padding:24px;">
+      <div style="font-size:13px;font-weight:600;color:#1A1916;margin-bottom:16px;">Avance vs objetivo</div>
+      <canvas id="resChart" height="80"></canvas>
+    </div>
   </div>
 </div>
 
-<!-- Modal gráfica -->
-<div class="overlay" id="overlay" onclick="closeChartOutsideR(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Avance vs objetivo — 2026</div>
-      <button class="btn-close" onclick="closeChartR()">Cerrar</button>
-    </div>
-    <div class="chart-tabs">
-      <button class="ctab active" onclick="switchChartR('ventas',this)">Ventas</button>
-      <button class="ctab" onclick="switchChartR('ingresos',this)">Ingresos</button>
-    </div>
-    <div style="position:relative; width:100%; height:400px;">
-      <canvas id="chartCanvas"></canvas>
-    </div>
-    <div id="chartLegend" style="display:flex;gap:20px;margin-top:14px;font-size:12px;color:#555;flex-wrap:wrap;"></div>
-  </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const MESES_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const MES_ACTUAL = 3;
-
-const OBJ = [
-  {venta:15000000,ingreso:450000},{venta:20000000,ingreso:600000},{venta:20000000,ingreso:600000},
-  {venta:30000000,ingreso:900000},{venta:25000000,ingreso:750000},{venta:30000000,ingreso:900000},
-  {venta:25000000,ingreso:750000},{venta:20000000,ingreso:600000},{venta:20000000,ingreso:600000},
-  {venta:25000000,ingreso:750000},{venta:30000000,ingreso:900000},{venta:25000000,ingreso:750000},
-];
-
-let V = [
-  {venta:3331406,ingreso:115060,ops:5},{venta:13586848,ingreso:395936,ops:5},
-  {venta:13114300,ingreso:337499,ops:5},{venta:4350000,ingreso:87000,ops:1},
-  {venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},
-  {venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},{venta:0,ingreso:0,ops:0},
-];
-
-let chartInstance = null;
-let currentChartType = 'ventas';
-
-function fmt(n) {
-  if (n===0) return '—';
-  if (Math.abs(n)>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
-  if (Math.abs(n)>=1000) return '$'+Math.round(n/1000)+'K';
-  return '$'+Math.round(n).toLocaleString('es-MX');
-}
-function pctCell(real,obj,show) {
-  if (!show) return '<span style="color:#ddd;">—</span>';
-  if (!obj)  return '<span style="color:#aaa;">—</span>';
-  const p=Math.round(real/obj*100);
-  return `<span class="${p>=100?'up':p>=75?'neutral':'down'}">${p}%</span>`;
-}
-function comPct(v,i) {
-  if (!v||!i) return '<span style="color:#ccc;">—</span>';
-  return `<span class="pct-pill">${(i/v*100).toFixed(2)}%</span>`;
-}
-function toggleForm() {
-  const fs=document.getElementById('formSection');
-  fs.style.display=fs.style.display==='none'?'block':'none';
-}
-function addOp() {
-  const mes=document.getElementById('fMes').value;
-  const venta=parseFloat(document.getElementById('fVenta').value)||0;
-  const p=parseFloat(document.getElementById('fPct').value);
-  const ops=parseInt(document.getElementById('fOps').value)||1;
-  const err=document.getElementById('fErr');
-  if (!venta||venta<=0){err.textContent='Ingresa un valor de venta.';return;}
-  if (isNaN(p)||p<=0){err.textContent='Ingresa un % de comisión.';return;}
-  err.textContent='';
-  const idx=MESES.indexOf(mes);
-  V[idx].venta+=venta; V[idx].ingreso+=venta*p/100; V[idx].ops+=ops;
-  document.getElementById('fVenta').value='';
-  document.getElementById('fPct').value='';
-  document.getElementById('fOps').value='1';
-  render();
-  if (chartInstance) drawChart(currentChartType);
-}
-function openChart() {
-  document.getElementById('overlay').classList.add('open');
-  setTimeout(()=>drawChart(currentChartType),60);
-}
-function closeChart(){document.getElementById('overlay').classList.remove('open');}
-function closeChartOutside(e){if(e.target===document.getElementById('overlay'))closeChart();}
-function switchChart(type,btn){
-  currentChartType=type;
-  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  drawChart(type);
-}
-
-function drawChart(type) {
-  if (chartInstance){chartInstance.destroy();chartInstance=null;}
-  const isVenta = type==='ventas';
-  const divisor = isVenta ? 1000000 : 1000;
-  const unit    = isVenta ? 'M' : 'K';
-
-  const objData  = OBJ.map(o => isVenta ? o.venta : o.ingreso);
-  const realData = V.map(v  => isVenta ? (v.venta||null) : (v.ingreso||null));
-
-  // Plugin de etiquetas sutiles encima de cada barra
-  const labelPlugin = {
-    id: 'barLabels',
-    afterDatasetsDraw(chart) {
-      const {ctx} = chart;
-      chart.data.datasets.forEach((dataset, di) => {
-        const meta = chart.getDatasetMeta(di);
-        meta.data.forEach((bar, i) => {
-          const val = dataset.data[i];
-          if (!val) return;
-          const label = '$' + (val/divisor).toFixed(1) + unit;
-          ctx.save();
-          ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
-          ctx.fillStyle = di === 0 ? 'rgba(24,95,165,0.55)' : 'rgba(29,158,117,0.7)';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(label, bar.x, bar.y - 3);
-          ctx.restore();
-        });
-      });
-    }
-  };
-
-  chartInstance = new Chart(document.getElementById('chartCanvas'), {
-    type: 'bar',
-    plugins: [labelPlugin],
-    data: {
-      labels: MESES_SHORT,
-      datasets: [
-        {
-          label: isVenta ? 'Objetivo venta' : 'Objetivo ingreso',
-          data: objData,
-          backgroundColor: 'rgba(24,95,165,0.12)',
-          borderColor: 'rgba(24,95,165,0.5)',
-          borderWidth: 1,
-          borderRadius: 4,
-          order: 2
-        },
-        {
-          label: isVenta ? 'Venta real' : 'Ingreso real',
-          data: realData,
-          backgroundColor: 'rgba(29,158,117,0.7)',
-          borderColor: 'rgba(29,158,117,0.9)',
-          borderWidth: 0,
-          borderRadius: 4,
-          order: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: { padding: { top: 20 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const v = ctx.raw;
-              if (!v) return 'Sin datos';
-              return ctx.dataset.label + ': $' + (v/divisor).toFixed(2) + unit;
-            }
-          }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-        y: {
-          grid: { color: 'rgba(0,0,0,0.04)' },
-          ticks: { font: { size: 11 }, callback: v => '$'+(v/divisor).toFixed(0)+unit }
-        }
-      }
-    }
-  });
-
-  document.getElementById('chartLegend').innerHTML=`
-    <span style="display:flex;align-items:center;gap:6px;">
-      <span style="width:12px;height:12px;border-radius:2px;background:rgba(24,95,165,0.12);border:1px solid rgba(24,95,165,0.5);display:inline-block;"></span>
-      ${isVenta?'Objetivo venta':'Objetivo ingreso'}
-    </span>
-    <span style="display:flex;align-items:center;gap:6px;">
-      <span style="width:12px;height:12px;border-radius:2px;background:rgba(29,158,117,0.7);display:inline-block;"></span>
-      ${isVenta?'Venta real':'Ingreso real'}
-    </span>`;
-}
-
-function render() {
-  let aV=0,aI=0,aOV=0,aOI=0,aOps=0,rows='';
-  MESES.forEach((m,i)=>{
-    aV+=V[i].venta; aI+=V[i].ingreso; aOV+=OBJ[i].venta; aOI+=OBJ[i].ingreso; aOps+=V[i].ops;
-    const isCur=i===MES_ACTUAL, isFut=i>MES_ACTUAL;
-    const cls=isCur?'current':isFut?'future':'';
-    const dot=isCur?'<span class="dot"></span>':'';
-    const hasV=V[i].venta>0, hasI=V[i].ingreso>0, hasAny=hasV||hasI;
-    const opsCell=V[i].ops>0?`<span class="ops-badge">${V[i].ops}</span>`:'<span style="color:#ccc;">—</span>';
-    rows+=`<tr class="${cls}">
-      <td>${dot}${m}</td>
-      <td>${fmt(OBJ[i].venta)}</td><td>${fmt(OBJ[i].ingreso)}</td>
-      <td class="sep" style="text-align:center;">${opsCell}</td>
-      <td>${hasV?fmt(V[i].venta):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${hasI?fmt(V[i].ingreso):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${comPct(V[i].venta,V[i].ingreso)}</td>
-      <td class="sep">${pctCell(V[i].venta,OBJ[i].venta,hasAny)}</td>
-      <td>${pctCell(V[i].ingreso,OBJ[i].ingreso,hasAny)}</td>
-      <td class="sep">${aV>0?fmt(aV):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${aI>0?fmt(aI):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${pctCell(aV,aOV,aV>0)}</td>
-      <td>${pctCell(aI,aOI,aI>0)}</td>
-    </tr>`;
-  });
-  document.getElementById('tbody').innerHTML=rows;
-
-  const tOV=OBJ.reduce((s,o)=>s+o.venta,0);
-  const tOI=OBJ.reduce((s,o)=>s+o.ingreso,0);
-  const pV=Math.round(aV/tOV*100), pI=Math.round(aI/tOI*100);
-  const cv=pV>=100?'up':pV>=75?'neutral':'down';
-  const ci=pI>=100?'up':pI>=75?'neutral':'down';
-  const comT=aV>0&&aI>0?(aI/aV*100).toFixed(2)+'%':'—';
-
-  document.getElementById('tfoot').innerHTML=`<tr>
-    <td>Total anual</td><td>${fmt(tOV)}</td><td>${fmt(tOI)}</td>
-    <td class="sep" style="text-align:center;"><span class="ops-badge">${aOps}</span></td>
-    <td>${fmt(aV)}</td><td>${fmt(aI)}</td>
-    <td><span class="pct-pill">${comT}</span></td>
-    <td class="sep"><span class="${cv}">${pV}%</span></td><td><span class="${ci}">${pI}%</span></td>
-    <td class="sep">${fmt(aV)}</td><td>${fmt(aI)}</td>
-    <td><span class="${cv}">${pV}%</span></td><td><span class="${ci}">${pI}%</span></td>
-  </tr>`;
-
-  const tV=aOps>0?aV/aOps:0, tI=aOps>0?aI/aOps:0;
-  document.getElementById('cards-top').innerHTML=`
-    <div class="metric"><div class="metric-label">Venta acumulada</div><div class="metric-val">$${(aV/1000000).toFixed(2)}M</div><div class="metric-sub ${pV>=100?'up':pV>=75?'neutral':'down'}">${pV}% del obj. anual ($285M)</div></div>
-    <div class="metric"><div class="metric-label">Ingreso acumulado</div><div class="metric-val up">$${(aI/1000).toFixed(0)}K</div><div class="metric-sub ${pI>=100?'up':pI>=75?'neutral':'down'}">${pI}% del obj. anual ($8.55M)</div></div>
-    <div class="metric"><div class="metric-label">% Comisión promedio</div><div class="metric-val">${aV>0&&aI>0?(aI/aV*100).toFixed(2)+'%':'—'}</div><div class="metric-sub neutral">Ingreso real ÷ venta real</div></div>
-    <div class="metric"><div class="metric-label">Operaciones cerradas</div><div class="metric-val">${aOps}</div><div class="metric-sub neutral">${aOps>0?'en lo que va del año':'Sin operaciones registradas'}</div></div>`;
-
-  document.getElementById('cards-bottom').innerHTML=`
-    <div class="metric"><div class="metric-label">Ticket promedio de venta</div><div class="metric-val">${aOps>0?fmt(tV):'—'}</div><div class="metric-sub neutral">Venta total ÷ operaciones</div></div>
-    <div class="metric"><div class="metric-label">Ingreso promedio por op.</div><div class="metric-val">${aOps>0?fmt(tI):'—'}</div><div class="metric-sub neutral">Ingreso total ÷ operaciones</div></div>
-    <div class="metric"><div class="metric-label">% Acumulado de ventas</div><div class="metric-val"><span class="${pV>=100?'up':pV>=75?'neutral':'down'}">${pV}%</span></div><div class="metric-sub neutral">$${(aV/1000000).toFixed(2)}M de $285M</div></div>
-    <div class="metric"><div class="metric-label">% Acumulado de ingresos</div><div class="metric-val"><span class="${pI>=100?'up':pI>=75?'neutral':'down'}">${pI}%</span></div><div class="metric-sub neutral">$${(aI/1000).toFixed(0)}K de $8,550K</div></div>`;
-}
-render();
-</script>
-</div>
-</div>
 
 <!-- ═══ REGISTROS MODULE ═══ -->
 <div class="module-page" id="pageRegistros">
@@ -891,7 +629,6 @@ render();
       <button class="reg-tab active" id="recTabVentasR" onclick="switchRecTabR('ventas')">Ventas y rentas</button>
       <button class="reg-tab" id="recTabListingsR" onclick="switchRecTabR('listings')">Listings</button>
     </div>
-
     <div id="recVentasViewR">
       <div id="ventasBarR" class="filter-active-bar"></div>
       <button class="add-rec-btn" onclick="openAddVentaR()">
@@ -900,7 +637,6 @@ render();
       </button>
       <div class="tbl-wrap-r"><table class="rtbl" id="ventasTblR"></table></div>
     </div>
-
     <div id="recListingsViewR" style="display:none;">
       <div id="listingsBarR" class="filter-active-bar"></div>
       <button class="add-rec-btn" onclick="openAddListingR()">
@@ -938,18 +674,28 @@ render();
       <div class="form-row"><label>CH</label><select id="avCH"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-row"><label>Asesor</label><select id="avAsesor"><option value="">Cargando...</option></select></div>
       <div class="form-row span2"><label>Cliente</label><input type="text" id="avCliente" placeholder="Nombre del cliente"></div>
-      <div class="form-row"><label>Opcionador</label><select id="avOpcionador"><option value="">Cargando...</option></select></div>
+      <div class="form-row"><label>Opcionador</label><select id="avOpcionador"><option value="">— Ninguno —</option></select></div>
       <div class="form-row"><label>Origen</label><select id="avOrigen"><option value="F&F">F&F</option><option value="Lead">Lead</option><option value="Inmobiliaria">Inmobiliaria</option><option value="Broker">Broker</option><option value="META">META</option><option value="Lona">Lona</option></select></div>
-      <div class="form-row"><label>Autogenerado</label><select id="avAutogen"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+      <div class="form-row"><label>Inmobiliaria (si aplica)</label><input type="text" id="avInmobiliaria" placeholder="Ej. MatchMakers, Gato Realtor..."></div>
+      <div class="form-row" style="display:flex;align-items:center;gap:10px;margin-top:18px;">
+        <input type="checkbox" id="avAutogen" style="width:16px;height:16px;accent-color:#1A1916;cursor:pointer;flex-shrink:0;margin:0;">
+        <label for="avAutogen" style="font-size:13px;color:#1A1916;font-weight:500;cursor:pointer;text-transform:none;letter-spacing:0;margin:0;">Autogenerado</label>
+      </div>
       <div class="form-row"><label>Unidad</label><select id="avUnidad"><option value="Departamento">Departamento</option><option value="Casa">Casa</option><option value="Terreno">Terreno</option><option value="Bodega">Bodega</option><option value="Local">Local</option><option value="Oficina">Oficina</option></select></div>
       <div class="form-row span2"><label>Proyecto</label><input type="text" id="avProyecto" placeholder="Nombre del proyecto"></div>
       <div class="form-section-title">Métricas</div>
-      <div class="form-row"><label>M²</label><input type="number" id="avM2" placeholder="0" min="0"></div>
-      <div class="form-row"><label>Precio por M² ($)</label><input type="number" id="avPM2" placeholder="0" min="0"></div>
-      <div class="form-row"><label>Monto de venta ($)</label><input type="number" id="avMonto" placeholder="0" min="0"></div>
-      <div class="form-row"><label>% Comisión total</label><input type="number" id="avComTot" placeholder="0.00" step="0.01" min="0" max="100"></div>
-      <div class="form-row"><label>% Comisión TRUST</label><input type="number" id="avComTrust" placeholder="0.00" step="0.01" min="0" max="100"></div>
-      <div class="form-row"><label>Dispersión ($)</label><input type="number" id="avDisp" placeholder="0" min="0"></div>
+      <div class="form-row"><label>Monto de venta ($)</label><input type="number" id="avMonto" placeholder="0" min="0" oninput="calcAvDerived()"></div>
+      <div class="form-row"><label>M²</label><input type="number" id="avM2" placeholder="0" min="0" oninput="calcAvDerived()"></div>
+      <div class="form-row"><label>$M² <span style="color:#A09F9B;font-size:9px;">(auto)</span></label><input type="number" id="avPM2" placeholder="—" readonly style="background:#EDECEA;cursor:not-allowed;color:#6B6A66;"></div>
+      <div class="form-row"><label>% Com. total</label><input type="number" id="avComTot" placeholder="0.00" step="0.01" min="0" max="100"></div>
+      <div class="form-row"><label>% Com. TRUST</label><input type="number" id="avComTrust" placeholder="0.00" step="0.01" min="0" max="100" oninput="calcAvDisp()"></div>
+      <div class="form-row">
+        <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          <span>Dispersión ($) <span id="avDispAutoLabel" style="color:#A09F9B;font-size:9px;">(auto)</span></span>
+          <button type="button" id="avDispToggleBtn" onclick="toggleAvDispManual()" style="font-size:10px;color:#185FA5;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;">✏️ Ingresar manual</button>
+        </label>
+        <input type="number" id="avDisp" placeholder="—" readonly style="background:#EDECEA;cursor:not-allowed;color:#6B6A66;">
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddVentaR()">Cancelar</button>
@@ -1014,15 +760,19 @@ render();
       <div class="form-row"><label>CH</label><select id="evCHR"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-row"><label>Asesor</label><select id="evAsesorR"><option value="">Cargando...</option></select></div>
       <div class="form-row span2"><label>Cliente</label><input type="text" id="evClienteR"></div>
-      <div class="form-row"><label>Opcionador</label><select id="evOpcionadorR"><option value="">Cargando...</option></select></div>
+      <div class="form-row"><label>Opcionador</label><select id="evOpcionadorR"><option value="">— Ninguno —</option></select></div>
       <div class="form-row"><label>Origen</label><select id="evOrigenR"><option value="F&F">F&F</option><option value="Lead">Lead</option><option value="Inmobiliaria">Inmobiliaria</option><option value="Broker">Broker</option><option value="META">META</option><option value="Lona">Lona</option></select></div>
-      <div class="form-row"><label>Autogenerado</label><select id="evAutogenR"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+      <div class="form-row"><label>Inmobiliaria</label><input type="text" id="evInmobiliariaR"></div>
+      <div class="form-row" style="display:flex;align-items:center;gap:10px;margin-top:18px;">
+        <input type="checkbox" id="evAutogenR" style="width:16px;height:16px;accent-color:#1A1916;cursor:pointer;flex-shrink:0;margin:0;">
+        <label for="evAutogenR" style="font-size:13px;color:#1A1916;font-weight:500;cursor:pointer;text-transform:none;letter-spacing:0;margin:0;">Autogenerado</label>
+      </div>
       <div class="form-row"><label>Unidad</label><select id="evUnidadR"><option value="Departamento">Departamento</option><option value="Casa">Casa</option><option value="Terreno">Terreno</option><option value="Bodega">Bodega</option><option value="Local">Local</option><option value="Oficina">Oficina</option></select></div>
       <div class="form-row span2"><label>Proyecto</label><input type="text" id="evProyectoR"></div>
       <div class="form-section-title">Métricas</div>
-      <div class="form-row"><label>M²</label><input type="number" id="evM2R" min="0"></div>
-      <div class="form-row"><label>Precio por M² ($)</label><input type="number" id="evPM2R" min="0"></div>
       <div class="form-row"><label>Monto ($)</label><input type="number" id="evMontoR" min="0"></div>
+      <div class="form-row"><label>M²</label><input type="number" id="evM2R" min="0"></div>
+      <div class="form-row"><label>$M²</label><input type="number" id="evPM2R" min="0"></div>
       <div class="form-row"><label>% Com. total</label><input type="number" id="evComTotR" step="0.01" min="0" max="100"></div>
       <div class="form-row"><label>% Com. TRUST</label><input type="number" id="evComTrustR" step="0.01" min="0" max="100"></div>
       <div class="form-row"><label>Dispersión ($)</label><input type="number" id="evDispR" min="0"></div>
@@ -1067,7 +817,6 @@ render();
   </div>
 </div>
 
-<!-- CHART.JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 <!-- 1. SHARED DATA LAYER -->
@@ -1588,10 +1337,7 @@ function saveOp(){
   else{const ci=parseInt(cur);renderHeader(team[ci],ci);renderKPIs(team[ci]);renderMetas(team[ci]);renderListings(team[ci]);renderChart(team[ci]);}
 }
 
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
-}
+
 
 // ── RECORDS DATA ──
 // ventasDB and listingsDB defined in shared_data.js
@@ -2154,232 +1900,111 @@ function initRealtors() {
 
 <!-- 3. RESULTADOS JS -->
 <script>
+const OBJ_Q=[
+  {q:'q1',label:'Q1 · Ene–Mar',venta:55000000,ingreso:1650000},
+  {q:'q2',label:'Q2 · Abr–Jun',venta:85000000,ingreso:2550000},
+  {q:'q3',label:'Q3 · Jul–Sep',venta:65000000,ingreso:1950000},
+  {q:'q4',label:'Q4 · Oct–Dic',venta:80000000,ingreso:2400000},
+];
+let resCurrentQ='all';
+let resChartInst=null;
 
-// MESES_R = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-// MESES_SHORT_R = = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-// MES_ACTUAL = 3;
+function computeQData(){
+  const d={q1:{venta:0,ingreso:0,ops:0},q2:{venta:0,ingreso:0,ops:0},q3:{venta:0,ingreso:0,ops:0},q4:{venta:0,ingreso:0,ops:0}};
+  if(typeof ventasDB!=='undefined') ventasDB.forEach(r=>{const q=r.q||'q1';if(d[q]){d[q].venta+=r.monto||0;d[q].ingreso+=r.disp||0;d[q].ops+=1;}});
+  return d;
+}
+function fmtRes(n){if(!n)return '$0';if(n>=1000000)return '$'+(n/1000000).toFixed(2).replace(/\.?0+$/,'')+'M';if(n>=1000)return '$'+Math.round(n/1000)+'K';return '$'+Math.round(n).toLocaleString('es-MX');}
+function pctCol(p){return p>=100?'up':p>=75?'neutral':'down';}
+function bar(p,col){return `<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:#F1EFE8;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.min(p,100)}%;background:${col==='up'?'#0F6E56':col==='neutral'?'#E67E22':'#C0392B'};border-radius:3px;"></div></div><span style="font-size:11px;font-weight:600;color:${col==='up'?'#0F6E56':col==='neutral'?'#E67E22':'#C0392B'};min-width:36px;">${p}%</span></div>`;}
 
-// OBJ already declared above
-
-function computeV(){
-  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const v=months.map(()=>({venta:0,ingreso:0,ops:0}));
-  if(typeof ventasDB!=='undefined'){
-    ventasDB.forEach(r=>{
-      const idx=months.indexOf(r.mes);
-      if(idx>=0){v[idx].venta+=r.monto||0;v[idx].ingreso+=r.disp||0;v[idx].ops+=1;}
-    });
-  }
-  return v;
-}
-let V_RES=computeV();
-
-let chartInstanceRR = null;
-let currentChartTypeRR = 'ventas';
-
-function fmt(n) {
-  if (n===0) return '—';
-  if (Math.abs(n)>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
-  if (Math.abs(n)>=1000) return '$'+Math.round(n/1000)+'K';
-  return '$'+Math.round(n).toLocaleString('es-MX');
-}
-function pctCell(real,obj,show) {
-  if (!show) return '<span style="color:#ddd;">—</span>';
-  if (!obj)  return '<span style="color:#aaa;">—</span>';
-  const p=Math.round(real/obj*100);
-  return `<span class="${p>=100?'up':p>=75?'neutral':'down'}">${p}%</span>`;
-}
-function comPct(v,i) {
-  if (!v||!i) return '<span style="color:#ccc;">—</span>';
-  return `<span class="pct-pill">${(i/v*100).toFixed(2)}%</span>`;
-}
-function toggleFormR() {
-  const fs=document.getElementById('formSection');
-  fs.style.display=fs.style.display==='none'?'block':'none';
-}
-function addOpR() {
-  const mes=document.getElementById('fMes').value;
-  const venta=parseFloat(document.getElementById('fVenta').value)||0;
-  const p=parseFloat(document.getElementById('fPct').value);
-  const ops=parseInt(document.getElementById('fOps').value)||1;
-  const err=document.getElementById('fErr');
-  if (!venta||venta<=0){err.textContent='Ingresa un valor de venta.';return;}
-  if (isNaN(p)||p<=0){err.textContent='Ingresa un % de comisión.';return;}
-  err.textContent='';
-  const idx=MESES.indexOf(mes);
-  V_RES[idx].venta+=venta; V_RES[idx].ingreso+=venta*p/100; V_RES[idx].ops+=ops;
-  document.getElementById('fVenta').value='';
-  document.getElementById('fPct').value='';
-  document.getElementById('fOps').value='1';
+function setResQ(q){
+  resCurrentQ=q;
+  document.querySelectorAll('.res-qtab').forEach(t=>t.classList.toggle('active',t.dataset.q===q));
   renderResultados();
-  if (chartInstanceR) drawChartR(currentChartTypeR);
-}
-function openChartR() {
-  document.getElementById('overlay').classList.add('open');
-  setTimeout(()=>drawChartR(currentChartTypeR),60);
-}
-function closeChartR(){document.getElementById('overlay').classList.remove('open');}
-function closeChartOutsideR(e){if(e.target===document.getElementById('overlay'))closeChartR();}
-function switchChartR(type,btn){
-  currentChartTypeR=type;
-  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  drawChartR(type);
 }
 
-function drawChartR(type) {
-  if (chartInstanceR){chartInstanceR.destroy();chartInstanceR=null;}
-  const isVenta = type==='ventas';
-  const divisor = isVenta ? 1000000 : 1000;
-  const unit    = isVenta ? 'M' : 'K';
+function renderResultados(){
+  const data=computeQData();
+  const qs=resCurrentQ==='all'?['q1','q2','q3','q4']:[resCurrentQ];
+  let totV=0,totI=0,totOps=0,objV=0,objI=0;
+  qs.forEach(q=>{totV+=data[q].venta;totI+=data[q].ingreso;totOps+=data[q].ops;const o=OBJ_Q.find(x=>x.q===q);if(o){objV+=o.venta;objI+=o.ingreso;}});
+  const pV=objV?Math.round(totV/objV*100):0;
+  const pI=objI?Math.round(totI/objI*100):0;
+  const pcProm=totV>0?(totI/totV*100).toFixed(2):'—';
 
-  const objData  = OBJ.map(o => isVenta ? o.venta : o.ingreso);
-  const realData = V.map(v  => isVenta ? (v.venta||null) : (v.ingreso||null));
+  document.getElementById('resKPIs').innerHTML=`
+    <div class="res-kpi-card"><div class="res-kpi-label">Venta acumulada</div><div class="res-kpi-val">${fmtRes(totV)}</div><div class="res-kpi-sub">Objetivo: ${fmtRes(objV)}</div><div class="res-kpi-pct ${pctCol(pV)}">${pV}% del objetivo</div></div>
+    <div class="res-kpi-card"><div class="res-kpi-label">Ingreso acumulado</div><div class="res-kpi-val" style="color:#0F6E56">${fmtRes(totI)}</div><div class="res-kpi-sub">Objetivo: ${fmtRes(objI)}</div><div class="res-kpi-pct ${pctCol(pI)}">${pI}% del objetivo</div></div>
+    <div class="res-kpi-card"><div class="res-kpi-label">% Com. promedio</div><div class="res-kpi-val">${pcProm}%</div><div class="res-kpi-sub">Ingreso ÷ venta real</div></div>
+    <div class="res-kpi-card"><div class="res-kpi-label">Operaciones</div><div class="res-kpi-val">${totOps}</div><div class="res-kpi-sub">${resCurrentQ==='all'?'Total anual':'En el trimestre'}</div></div>`;
 
-  // Plugin de etiquetas sutiles encima de cada barra
-  const labelPlugin = {
-    id: 'barLabels',
-    afterDatasetsDraw(chart) {
-      const {ctx} = chart;
-      chart.data.datasets.forEach((dataset, di) => {
-        const meta = chart.getDatasetMeta(di);
-        meta.data.forEach((bar, i) => {
-          const val = dataset.data[i];
-          if (!val) return;
-          const label = '$' + (val/divisor).toFixed(1) + unit;
-          ctx.save();
-          ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
-          ctx.fillStyle = di === 0 ? 'rgba(24,95,165,0.55)' : 'rgba(29,158,117,0.7)';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(label, bar.x, bar.y - 3);
-          ctx.restore();
-        });
-      });
-    }
-  };
+  const showQs=resCurrentQ==='all'?OBJ_Q:OBJ_Q.filter(o=>o.q===resCurrentQ);
+  const thStyle='padding:12px 16px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.65);white-space:nowrap;';
+  const tdStyle='padding:13px 16px;border-bottom:1px solid rgba(0,0,0,0.07);';
 
-  chartInstanceR = new Chart(document.getElementById('chartCanvas'), {
-    type: 'bar',
-    plugins: [labelPlugin],
-    data: {
-      labels: MESES_SHORT,
-      datasets: [
-        {
-          label: isVenta ? 'Objetivo venta' : 'Objetivo ingreso',
-          data: objData,
-          backgroundColor: 'rgba(24,95,165,0.12)',
-          borderColor: 'rgba(24,95,165,0.5)',
-          borderWidth: 1,
-          borderRadius: 4,
-          order: 2
-        },
-        {
-          label: isVenta ? 'Venta real' : 'Ingreso real',
-          data: realData,
-          backgroundColor: 'rgba(29,158,117,0.7)',
-          borderColor: 'rgba(29,158,117,0.9)',
-          borderWidth: 0,
-          borderRadius: 4,
-          order: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: { padding: { top: 20 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const v = ctx.raw;
-              if (!v) return 'Sin datos';
-              return ctx.dataset.label + ': $' + (v/divisor).toFixed(2) + unit;
-            }
-          }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-        y: {
-          grid: { color: 'rgba(0,0,0,0.04)' },
-          ticks: { font: { size: 11 }, callback: v => '$'+(v/divisor).toFixed(0)+unit }
-        }
-      }
-    }
-  });
-
-  document.getElementById('chartLegend').innerHTML=`
-    <span style="display:flex;align-items:center;gap:6px;">
-      <span style="width:12px;height:12px;border-radius:2px;background:rgba(24,95,165,0.12);border:1px solid rgba(24,95,165,0.5);display:inline-block;"></span>
-      ${isVenta?'Objetivo venta':'Objetivo ingreso'}
-    </span>
-    <span style="display:flex;align-items:center;gap:6px;">
-      <span style="width:12px;height:12px;border-radius:2px;background:rgba(29,158,117,0.7);display:inline-block;"></span>
-      ${isVenta?'Venta real':'Ingreso real'}
-    </span>`;
-}
-
-function renderResultados() {
-  let aV=0,aI=0,aOV=0,aOI=0,aOps=0,rows='';
-  MESES.forEach((m,i)=>{
-    aV+=V_RES[i].venta; aI+=V_RES[i].ingreso; aOV+=OBJ[i].venta; aOI+=OBJ[i].ingreso; aOps+=V_RES[i].ops;
-    const isCur=i===MES_ACTUAL, isFut=i>MES_ACTUAL;
-    const cls=isCur?'current':isFut?'future':'';
-    const dot=isCur?'<span class="dot"></span>':'';
-    const hasV=V_RES[i].venta>0, hasI=V_RES[i].ingreso>0, hasAny=hasV||hasI;
-    const opsCell=V_RES[i].ops>0?`<span class="ops-badge">${V_RES[i].ops}</span>`:'<span style="color:#ccc;">—</span>';
-    rows+=`<tr class="${cls}">
-      <td>${dot}${m}</td>
-      <td>${fmt(OBJ[i].venta)}</td><td>${fmt(OBJ[i].ingreso)}</td>
-      <td class="sep" style="text-align:center;">${opsCell}</td>
-      <td>${hasV?fmt(V_RES[i].venta):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${hasI?fmt(V_RES[i].ingreso):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${comPct(V_RES[i].venta,V_RES[i].ingreso)}</td>
-      <td class="sep">${pctCell(V_RES[i].venta,OBJ[i].venta,hasAny)}</td>
-      <td>${pctCell(V_RES[i].ingreso,OBJ[i].ingreso,hasAny)}</td>
-      <td class="sep">${aV>0?fmt(aV):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${aI>0?fmt(aI):'<span style="color:#ccc;">—</span>'}</td>
-      <td>${pctCell(aV,aOV,aV>0)}</td>
-      <td>${pctCell(aI,aOI,aI>0)}</td>
+  let rows=showQs.map(obj=>{
+    const d=data[obj.q];
+    const pv=obj.venta?Math.round(d.venta/obj.venta*100):0;
+    const pi=obj.ingreso?Math.round(d.ingreso/obj.ingreso*100):0;
+    const pc=d.venta>0?(d.ingreso/d.venta*100).toFixed(2):'—';
+    return `<tr>
+      <td style="${tdStyle}font-weight:600;color:#1A1916;">${obj.label}</td>
+      <td style="${tdStyle}color:#6B6A66;">${fmtRes(obj.venta)}</td>
+      <td style="${tdStyle}color:#6B6A66;">${fmtRes(obj.ingreso)}</td>
+      <td style="${tdStyle}font-family:'DM Mono',monospace;">${d.ops}</td>
+      <td style="${tdStyle}font-family:'DM Mono',monospace;">${fmtRes(d.venta)}</td>
+      <td style="${tdStyle}color:#0F6E56;font-family:'DM Mono',monospace;font-weight:500;background:rgba(15,110,86,0.04);">${fmtRes(d.ingreso)}</td>
+      <td style="${tdStyle}font-family:'DM Mono',monospace;">${pc}%</td>
+      <td style="${tdStyle}min-width:140px;">${bar(pv,pctCol(pv))}</td>
+      <td style="${tdStyle}min-width:140px;">${bar(pi,pctCol(pi))}</td>
     </tr>`;
+  }).join('');
+
+  if(resCurrentQ==='all'){
+    const pv=Math.round(totV/285000000*100);
+    const pi=Math.round(totI/8550000*100);
+    const pc=totV>0?(totI/totV*100).toFixed(2):'—';
+    rows+=`<tr style="background:#F5F4F0;font-weight:600;">
+      <td style="${tdStyle}color:#1A1916;">Total anual</td>
+      <td style="${tdStyle}color:#6B6A66;">${fmtRes(285000000)}</td>
+      <td style="${tdStyle}color:#6B6A66;">${fmtRes(8550000)}</td>
+      <td style="${tdStyle}font-family:'DM Mono',monospace;">${totOps}</td>
+      <td style="${tdStyle}font-family:'DM Mono',monospace;">${fmtRes(totV)}</td>
+      <td style="${tdStyle}color:#0F6E56;font-family:'DM Mono',monospace;background:rgba(15,110,86,0.06);">${fmtRes(totI)}</td>
+      <td style="${tdStyle}font-family:'DM Mono',monospace;">${pc}%</td>
+      <td style="${tdStyle}">${bar(pv,pctCol(pv))}</td>
+      <td style="${tdStyle}">${bar(pi,pctCol(pi))}</td>
+    </tr>`;
+  }
+
+  document.getElementById('resTable').innerHTML=`<thead><tr style="background:#1A1916;">
+    <th style="${thStyle}">Trimestre</th><th style="${thStyle}">Obj. Venta</th><th style="${thStyle}">Obj. Ingreso</th>
+    <th style="${thStyle}">Ops.</th><th style="${thStyle}">Venta real</th>
+    <th style="${thStyle}background:rgba(15,110,86,0.4);">Ingreso real</th>
+    <th style="${thStyle}">% Com.</th><th style="${thStyle}">Avance venta</th><th style="${thStyle}">Avance ingreso</th>
+  </tr></thead><tbody>${rows}</tbody>`;
+
+  // Chart
+  const labels=showQs.map(o=>o.label);
+  const realV=showQs.map(o=>+(data[o.q].venta/1000000).toFixed(2));
+  const objVArr=showQs.map(o=>o.venta/1000000);
+  const realI=showQs.map(o=>+(data[o.q].ingreso/1000000).toFixed(2));
+  const objIArr=showQs.map(o=>o.ingreso/1000000);
+  if(resChartInst) resChartInst.destroy();
+  const ctx=document.getElementById('resChart').getContext('2d');
+  resChartInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Venta objetivo',data:objVArr,backgroundColor:'rgba(26,25,22,0.1)',borderRadius:4},
+      {label:'Venta real',data:realV,backgroundColor:'rgba(26,25,22,0.65)',borderRadius:4},
+      {label:'Ingreso objetivo',data:objIArr,backgroundColor:'rgba(15,110,86,0.15)',borderRadius:4},
+      {label:'Ingreso real',data:realI,backgroundColor:'rgba(15,110,86,0.7)',borderRadius:4},
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}},
+      scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}}}
   });
-  document.getElementById('tbody').innerHTML=rows;
-
-  const tOV=OBJ.reduce((s,o)=>s+o.venta,0);
-  const tOI=OBJ.reduce((s,o)=>s+o.ingreso,0);
-  const pV=Math.round(aV/tOV*100), pI=Math.round(aI/tOI*100);
-  const cv=pV>=100?'up':pV>=75?'neutral':'down';
-  const ci=pI>=100?'up':pI>=75?'neutral':'down';
-  const comT=aV>0&&aI>0?(aI/aV*100).toFixed(2)+'%':'—';
-
-  document.getElementById('tfoot').innerHTML=`<tr>
-    <td>Total anual</td><td>${fmt(tOV)}</td><td>${fmt(tOI)}</td>
-    <td class="sep" style="text-align:center;"><span class="ops-badge">${aOps}</span></td>
-    <td>${fmt(aV)}</td><td>${fmt(aI)}</td>
-    <td><span class="pct-pill">${comT}</span></td>
-    <td class="sep"><span class="${cv}">${pV}%</span></td><td><span class="${ci}">${pI}%</span></td>
-    <td class="sep">${fmt(aV)}</td><td>${fmt(aI)}</td>
-    <td><span class="${cv}">${pV}%</span></td><td><span class="${ci}">${pI}%</span></td>
-  </tr>`;
-
-  const tV=aOps>0?aV/aOps:0, tI=aOps>0?aI/aOps:0;
-  document.getElementById('cards-top').innerHTML=`
-    <div class="metric"><div class="metric-label">Venta acumulada</div><div class="metric-val">$${(aV/1000000).toFixed(2)}M</div><div class="metric-sub ${pV>=100?'up':pV>=75?'neutral':'down'}">${pV}% del obj. anual ($285M)</div></div>
-    <div class="metric"><div class="metric-label">Ingreso acumulado</div><div class="metric-val up">$${(aI/1000).toFixed(0)}K</div><div class="metric-sub ${pI>=100?'up':pI>=75?'neutral':'down'}">${pI}% del obj. anual ($8.55M)</div></div>
-    <div class="metric"><div class="metric-label">% Comisión promedio</div><div class="metric-val">${aV>0&&aI>0?(aI/aV*100).toFixed(2)+'%':'—'}</div><div class="metric-sub neutral">Ingreso real ÷ venta real</div></div>
-    <div class="metric"><div class="metric-label">Operaciones cerradas</div><div class="metric-val">${aOps}</div><div class="metric-sub neutral">${aOps>0?'en lo que va del año':'Sin operaciones registradas'}</div></div>`;
-
-  document.getElementById('cards-bottom').innerHTML=`
-    <div class="metric"><div class="metric-label">Ticket promedio de venta</div><div class="metric-val">${aOps>0?fmt(tV):'—'}</div><div class="metric-sub neutral">Venta total ÷ operaciones</div></div>
-    <div class="metric"><div class="metric-label">Ingreso promedio por op.</div><div class="metric-val">${aOps>0?fmt(tI):'—'}</div><div class="metric-sub neutral">Ingreso total ÷ operaciones</div></div>
-    <div class="metric"><div class="metric-label">% Acumulado de ventas</div><div class="metric-val"><span class="${pV>=100?'up':pV>=75?'neutral':'down'}">${pV}%</span></div><div class="metric-sub neutral">$${(aV/1000000).toFixed(2)}M de $285M</div></div>
-    <div class="metric"><div class="metric-label">% Acumulado de ingresos</div><div class="metric-val"><span class="${pI>=100?'up':pI>=75?'neutral':'down'}">${pI}%</span></div><div class="metric-sub neutral">$${(aI/1000).toFixed(0)}K de $8,550K</div></div>`;
 }
-// called by shared data loader
-
 </script>
 
 <!-- 4. REGISTROS JS -->
@@ -2389,7 +2014,7 @@ function renderResultados() {
 // ═══════════════════════════════════════════
 
 const TEAM_NAMES = ['Fanny de la Cuesta','Ana Lu Moreno','Majo Puerto','Rodrigo Del Valle',
-  'Maria Tirado','Alvaro Arizti','Paola Almaguer','Carlos Mazariegos','Paco Alarcón'];
+  'Maria Tirado','Alvaro Arizti','Paola Almaguer','Carlos Mazariegos','Paco Alarcón','TRUST'];
 
 const MESES_LIST = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -2630,23 +2255,63 @@ function saveAddVentaR(){
     un:document.getElementById('avUN').value, tipo:document.getElementById('avTipo').value,
     ch:document.getElementById('avCH').value, asesor:document.getElementById('avAsesor').value,
     cliente:document.getElementById('avCliente').value, opcionador:document.getElementById('avOpcionador').value||'',
-    origen:document.getElementById('avOrigen').value, autogen:document.getElementById('avAutogen').value,
-    m2:parseFloat(document.getElementById('avM2').value)||0, pm2:parseFloat(document.getElementById('avPM2').value)||0,
+    origen:document.getElementById('avOrigen').value, inmobiliaria:document.getElementById('avInmobiliaria').value||'',
+    autogen:document.getElementById('avAutogen').checked?'Sí':'No',
+    m2:parseFloat(document.getElementById('avM2').value)||0,
+    pm2:parseFloat(document.getElementById('avPM2').value)||0,
     unidad:document.getElementById('avUnidad').value, proyecto:document.getElementById('avProyecto').value||'',
     monto, comTot:parseFloat(document.getElementById('avComTot').value)||0,
     comTrust:parseFloat(document.getElementById('avComTrust').value)||0,
     disp:parseFloat(document.getElementById('avDisp').value)||0,
   };
   const sbRow={q:rec.q,mes:rec.mes,un:rec.un,tipo:rec.tipo,ch:rec.ch,asesor:rec.asesor,
-    cliente:rec.cliente,opcionador:rec.opcionador,origen:rec.origen,autogen:rec.autogen,
-    m2:rec.m2,pm2:rec.pm2,unidad:rec.unidad,proyecto:rec.proyecto,monto:rec.monto,
+    cliente:rec.cliente,opcionador:rec.opcionador,origen:rec.origen,inmobiliaria:rec.inmobiliaria,
+    autogen:rec.autogen,m2:rec.m2,pm2:rec.pm2,unidad:rec.unidad,proyecto:rec.proyecto,monto:rec.monto,
     com_tot:rec.comTot,com_trust:rec.comTrust,disp:rec.disp};
   sbInsert('ventas',sbRow).then(saved=>{if(saved)rec._id=saved.id;});
   ventasDB.push(rec);
   closeAddVentaR();
-  ['avCliente','avProyecto','avM2','avPM2','avMonto','avComTot','avComTrust','avDisp'].forEach(id=>document.getElementById(id).value='');
+  ['avCliente','avProyecto','avM2','avPM2','avMonto','avComTot','avComTrust','avDisp','avInmobiliaria'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('avAutogen').checked=false;
+  window._avDispManual=false;
+  document.getElementById('avDisp').readOnly=true;
+  document.getElementById('avDisp').style.background='#EDECEA';
+  document.getElementById('avDisp').style.cursor='not-allowed';
   refreshAllModules();
   showToastR(rec.tipo+' guardada');
+}
+
+// Auto-calc helpers for add venta modal
+function calcAvDerived(){
+  const monto=parseFloat(document.getElementById('avMonto').value)||0;
+  const m2=parseFloat(document.getElementById('avM2').value)||0;
+  if(monto>0&&m2>0) document.getElementById('avPM2').value=Math.round(monto/m2);
+  else document.getElementById('avPM2').value='';
+  calcAvDisp();
+}
+function calcAvDisp(){
+  if(window._avDispManual) return;
+  const monto=parseFloat(document.getElementById('avMonto').value)||0;
+  const pct=parseFloat(document.getElementById('avComTrust').value)||0;
+  if(monto>0&&pct>0) document.getElementById('avDisp').value=Math.round(monto*pct/100);
+  else document.getElementById('avDisp').value='';
+}
+let _avDispManual=false;
+window._avDispManual=false;
+function toggleAvDispManual(){
+  window._avDispManual=!window._avDispManual;
+  const inp=document.getElementById('avDisp');
+  const btn=document.getElementById('avDispToggleBtn');
+  const lbl=document.getElementById('avDispAutoLabel');
+  if(window._avDispManual){
+    inp.readOnly=false; inp.style.background=''; inp.style.cursor='text'; inp.style.color='';
+    btn.textContent='🔄 Calcular auto'; lbl.textContent='(manual)';
+    inp.focus();
+  } else {
+    inp.readOnly=true; inp.style.background='#EDECEA'; inp.style.cursor='not-allowed'; inp.style.color='#6B6A66';
+    btn.textContent='✏️ Ingresar manual'; lbl.textContent='(auto)';
+    calcAvDisp();
+  }
 }
 
 // ── Add listing ──
