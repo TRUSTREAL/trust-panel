@@ -42,10 +42,10 @@
 .rtbl{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;}
 .rtbl th{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#A09F9B;font-weight:500;padding:0 10px 10px 0;border-bottom:1px solid rgba(0,0,0,0.09);text-align:left;cursor:pointer;user-select:none;position:relative;padding-right:18px;}
 .rtbl th:hover{color:#6B6A66;}
-.rtbl td{padding:9px 10px 9px 0;border-bottom:1px solid rgba(0,0,0,0.06);color:#1A1916;vertical-align:middle;}
+.rtbl td{padding:9px 10px 9px 0;border-bottom:1px solid rgba(0,0,0,0.06);color:#1A1916;vertical-align:middle;text-align:left;}
 .rtbl tr:last-child td{border-bottom:none;}
 .rtbl tr:hover td{background:rgba(0,0,0,0.02);}
-.rtbl .mono{font-family:'DM Mono',monospace;font-size:11px;}
+.rtbl .mono{font-family:'DM Mono',monospace;font-size:11px;text-align:left;}
 .col-money{background:rgba(15,110,86,0.05);}
 .col-money-th{background:rgba(15,110,86,0.08);color:#085041 !important;}
 .tag-pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;}
@@ -1384,6 +1384,7 @@ function renderVentasTable(){
         case 'autogen': return '<td><span class="tag-pill" style="background:'+(r.autogen==='Sí'?'#FAEEDA':'#F1EFE8')+';color:'+(r.autogen==='Sí'?'#633806':'#5F5E5A')+'">'+r.autogen+'</span></td>';
         case 'unidad': return '<td>'+r.unidad+'</td>';
         case 'proyecto': return '<td>'+(r.proyecto||'—')+'</td>';
+        case 'inmobiliaria': return '<td>'+(r.inmobiliaria||'—')+'</td>';
         case 'm2': return '<td '+cls+'>'+(r.m2||'—')+'</td>';
         case 'pm2calc': return '<td '+cls+'>'+(r.m2&&r.monto?fm(Math.round(r.monto/r.m2)):'—')+'</td>';
         case 'monto': return '<td '+cls+'>'+fm(r.monto)+'</td>';
@@ -1914,7 +1915,11 @@ function computeQData(){
   if(typeof ventasDB!=='undefined') ventasDB.forEach(r=>{const q=r.q||'q1';if(d[q]){d[q].venta+=r.monto||0;d[q].ingreso+=r.disp||0;d[q].ops+=1;}});
   return d;
 }
-function fmtRes(n){if(!n)return '$0';if(n>=1000000)return '$'+(n/1000000).toFixed(2).replace(/\.?0+$/,'')+'M';if(n>=1000)return '$'+Math.round(n/1000)+'K';return '$'+Math.round(n).toLocaleString('es-MX');}
+function fmtRes(n){
+  if(!n||n===0) return '$0';
+  const rounded = Math.round(n * 100) / 100;
+  return '$' + rounded.toLocaleString('es-MX', {minimumFractionDigits:0, maximumFractionDigits:2});
+}
 function pctCol(p){return p>=100?'up':p>=75?'neutral':'down';}
 function bar(p,col){return `<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:#F1EFE8;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.min(p,100)}%;background:${col==='up'?'#0F6E56':col==='neutral'?'#E67E22':'#C0392B'};border-radius:3px;"></div></div><span style="font-size:11px;font-weight:600;color:${col==='up'?'#0F6E56':col==='neutral'?'#E67E22':'#C0392B'};min-width:36px;">${p}%</span></div>`;}
 
@@ -2019,6 +2024,29 @@ const TEAM_NAMES = ['Fanny de la Cuesta','Ana Lu Moreno','Majo Puerto','Rodrigo 
 const MESES_LIST = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 let ventasFiltersR = {};
+let ventasSortKey = null;   // 'disp', 'monto', 'mes'
+let ventasSortDir = 1;      // 1 = asc, -1 = desc
+const MES_ORDER = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function setVentasSort(key) {
+  if(ventasSortKey === key) {
+    ventasSortDir *= -1;  // toggle direction
+  } else {
+    ventasSortKey = key;
+    ventasSortDir = key === 'mes' ? 1 : -1;  // mes starts asc, amounts start desc
+  }
+  renderVentasTableR();
+}
+
+function getSortedVentas(rows) {
+  if(!ventasSortKey) return rows;
+  return [...rows].sort((a, b) => {
+    if(ventasSortKey === 'mes') {
+      return (MES_ORDER.indexOf(a.mes) - MES_ORDER.indexOf(b.mes)) * ventasSortDir;
+    }
+    return ((a[ventasSortKey]||0) - (b[ventasSortKey]||0)) * ventasSortDir;
+  });
+}
 let listingsFiltersR = {};
 let activeDropdownR = null;
 let dragSrcIdxR = null;
@@ -2029,7 +2057,7 @@ const VENTAS_COLS_R = [
   {key:'asesor',label:'Asesor'},{key:'cliente',label:'Cliente'},
   {key:'opcionador',label:'Opcionador'},{key:'origen',label:'Origen'},
   {key:'autogen',label:'Autogen.'},{key:'unidad',label:'Unidad'},
-  {key:'proyecto',label:'Proyecto'},{key:'m2',label:'M²',numeric:true},
+  {key:'proyecto',label:'Proyecto'},{key:'inmobiliaria',label:'Inmobiliaria'},{key:'m2',label:'M²',numeric:true},
   {key:'pm2calc',label:'$M²',numeric:true},
   {key:'monto',label:'Venta',numeric:true,money:true},
   {key:'comTot',label:'Com. Total',numeric:true,money:true},
@@ -2137,6 +2165,25 @@ function clearFilterR(colKey,isVentas){
   applyFilterR(colKey,isVentas);
 }
 
+function buildThRSort(col,isVentas,i){
+  // For sortable columns, add sort button
+  const sortable = isVentas && ['disp','monto','mes'].includes(col.key);
+  if(sortable){
+    const isActive = ventasSortKey === col.key;
+    const arrow = isActive ? (ventasSortDir === 1 ? ' ↑' : ' ↓') : ' ⇅';
+    const hasFilter = (isVentas?ventasFiltersR:listingsFiltersR)[col.key]?.size>0;
+    const isMoney = col.money && isVentas;
+    return `<th class="${isMoney?'col-money-th':''}" draggable="true" data-ci="${i}" data-iv="${isVentas}"
+      ondragstart="colDragStartR(event)" ondragover="colDragOverR(event)" ondrop="colDropR(event,${isVentas})" ondragend="colDragEndR(event)">
+      <div class="th-inner" style="gap:2px;justify-content:space-between;width:100%;">
+        <span onclick="openFilterR('${col.key}',this,${isVentas})" style="cursor:pointer;">${col.label}<span class="filter-icon ${hasFilter?'active':''}">▼</span></span>
+        <span onclick="setVentasSort('${col.key}')" style="cursor:pointer;color:${isActive?'#185FA5':'#C0BEBB'};font-size:11px;padding:0 2px;user-select:none;margin-left:auto;">${arrow}</span>
+      </div>
+    </th>`;
+  }
+  return buildThR(col,isVentas,i);
+}
+
 function buildThR(col,isVentas,i){
   const hasFilter=(isVentas?ventasFiltersR:listingsFiltersR)[col.key]?.size>0;
   const isMoney=col.money&&isVentas;
@@ -2161,14 +2208,15 @@ function renderFilterBarR(filters,cols,isVentas,barId){
 function renderVentasTableR(){
   const tbl=document.getElementById('ventasTblR'); if(!tbl) return;
   renderFilterBarR(ventasFiltersR,VENTAS_COLS_R,true,'ventasBarR');
-  const rows=getFilteredVentasR();
-  const thead='<thead><tr>'+VENTAS_COLS_R.map((c,i)=>buildThR(c,true,i)).join('')+'<th></th></tr></thead>';
+  const filtered=getFilteredVentasR();
+  const rows=getSortedVentas(filtered);
+  const thead='<thead><tr>'+VENTAS_COLS_R.map((c,i)=>buildThRSort(c,true,i)).join('')+'<th></th></tr></thead>';
   if(rows.length===0){
     tbl.innerHTML=thead+'<tbody><tr><td colspan="'+(VENTAS_COLS_R.length+1)+'" style="text-align:center;padding:40px;color:var(--text3);">'+(ventasDB.length===0?'Sin ventas registradas.':'Sin resultados con los filtros.')+'</td></tr></tbody>';
     return;
   }
   tbl.innerHTML=thead+'<tbody>'+rows.map(r=>{
-    const i=ventasDB.indexOf(r);
+    const i=ventasDB.indexOf(r);  // original index for edit/delete
     const cells=VENTAS_COLS_R.map(col=>{
       const m=col.money; const cls='class="'+(col.numeric?'mono ':'')+(m?'col-money':'')+'"';
       switch(col.key){
@@ -2184,6 +2232,7 @@ function renderVentasTableR(){
         case 'autogen': return '<td><span class="tag-pill" style="background:'+(r.autogen==='Sí'?'#FAEEDA':'#F1EFE8')+';color:'+(r.autogen==='Sí'?'#633806':'#5F5E5A')+'">'+r.autogen+'</span></td>';
         case 'unidad': return '<td>'+r.unidad+'</td>';
         case 'proyecto': return '<td>'+(r.proyecto||'—')+'</td>';
+        case 'inmobiliaria': return '<td>'+(r.inmobiliaria||'—')+'</td>';
         case 'm2': return '<td '+cls+'>'+(r.m2||'—')+'</td>';
         case 'pm2calc': return '<td '+cls+'>'+(r.m2&&r.monto?fmtMR(Math.round(r.monto/r.m2)):'—')+'</td>';
         case 'monto': return '<td '+cls+'>'+fmtMR(r.monto)+'</td>';
@@ -2341,54 +2390,71 @@ function saveAddListingR(){
 // ── Edit venta ──
 function openEditVentaR(i){
   buildRegistrosSelects();
-  const r=ventasDB[i];
-  document.getElementById('evIdxR').value=i;
-  ['Q','Mes','UN','Tipo','CH','Asesor','Cliente','Opcionador','Origen','Autogen','Unidad','Proyecto','M2','PM2','Monto','ComTot','ComTrust','Disp'].forEach(f=>{
-    const el=document.getElementById('ev'+f+'R');
-    if(el) el.value = r[f.charAt(0).toLowerCase()+f.slice(1)]||'';
-  });
-  document.getElementById('evQR').value=r.q;
-  document.getElementById('evMesR').value=r.mes||'';
-  document.getElementById('evUNR').value=r.un||'';
-  document.getElementById('evTipoR').value=r.tipo||'';
-  document.getElementById('evCHR').value=r.ch||'';
-  document.getElementById('evAsesorR').value=r.asesor||'';
-  document.getElementById('evClienteR').value=r.cliente||'';
-  document.getElementById('evOpcionadorR').value=r.opcionador||'';
-  document.getElementById('evOrigenR').value=r.origen||'';
-  document.getElementById('evAutogenR').value=r.autogen||'';
-  document.getElementById('evUnidadR').value=r.unidad||'';
-  document.getElementById('evProyectoR').value=r.proyecto||'';
-  document.getElementById('evM2R').value=r.m2||'';
-  document.getElementById('evPM2R').value=r.pm2||'';
-  document.getElementById('evMontoR').value=r.monto||'';
-  document.getElementById('evComTotR').value=r.comTot||'';
-  document.getElementById('evComTrustR').value=r.comTrust||'';
-  document.getElementById('evDispR').value=r.disp||'';
+  const r = ventasDB[i];
+  document.getElementById('evIdxR').value = i;
+  document.getElementById('evQR').value = r.q||'q1';
+  document.getElementById('evMesR').value = r.mes||'Enero';
+  document.getElementById('evUNR').value = r.un||'Brokerage';
+  document.getElementById('evTipoR').value = r.tipo||'Venta';
+  document.getElementById('evCHR').value = r.ch||'No';
+  document.getElementById('evAsesorR').value = r.asesor||'';
+  document.getElementById('evClienteR').value = r.cliente||'';
+  document.getElementById('evOpcionadorR').value = r.opcionador||'';
+  document.getElementById('evOrigenR').value = r.origen||'Lead';
+  if(document.getElementById('evInmobiliariaR')) document.getElementById('evInmobiliariaR').value = r.inmobiliaria||'';
+  document.getElementById('evAutogenR').checked = r.autogen==='Sí';
+  document.getElementById('evUnidadR').value = r.unidad||'Departamento';
+  document.getElementById('evProyectoR').value = r.proyecto||'';
+  document.getElementById('evM2R').value = r.m2||'';
+  document.getElementById('evPM2R').value = r.pm2||'';
+  document.getElementById('evMontoR').value = r.monto||'';
+  document.getElementById('evComTotR').value = r.comTot||'';
+  document.getElementById('evComTrustR').value = r.comTrust||'';
+  document.getElementById('evDispR').value = r.disp||'';
   document.getElementById('editVentaOverlayR').classList.add('open');
 }
 function closeEditVentaR(){ document.getElementById('editVentaOverlayR').classList.remove('open'); }
 function closeEditVentaOutsideR(e){ if(e.target===document.getElementById('editVentaOverlayR')) closeEditVentaR(); }
 function saveEditVentaR(){
-  const i=parseInt(document.getElementById('evIdxR').value);
-  const monto=parseFloat(document.getElementById('evMontoR').value)||0;
+  const i = parseInt(document.getElementById('evIdxR').value);
+  const monto = parseFloat(document.getElementById('evMontoR').value)||0;
   if(!monto){ alert('El monto es obligatorio.'); return; }
-  const oldId=ventasDB[i]._id;
-  ventasDB[i]={_id:oldId,q:document.getElementById('evQR').value,mes:document.getElementById('evMesR').value,
-    un:document.getElementById('evUNR').value,tipo:document.getElementById('evTipoR').value,ch:document.getElementById('evCHR').value,
-    asesor:document.getElementById('evAsesorR').value,cliente:document.getElementById('evClienteR').value,
-    opcionador:document.getElementById('evOpcionadorR').value,origen:document.getElementById('evOrigenR').value,
-    autogen:document.getElementById('evAutogenR').value,m2:parseFloat(document.getElementById('evM2R').value)||0,
-    pm2:parseFloat(document.getElementById('evPM2R').value)||0,unidad:document.getElementById('evUnidadR').value,
-    proyecto:document.getElementById('evProyectoR').value,monto,
-    comTot:parseFloat(document.getElementById('evComTotR').value)||0,
-    comTrust:parseFloat(document.getElementById('evComTrustR').value)||0,
-    disp:parseFloat(document.getElementById('evDispR').value)||0};
-  if(oldId) sbUpdate('ventas',oldId,{q:ventasDB[i].q,mes:ventasDB[i].mes,un:ventasDB[i].un,tipo:ventasDB[i].tipo,ch:ventasDB[i].ch,asesor:ventasDB[i].asesor,cliente:ventasDB[i].cliente,opcionador:ventasDB[i].opcionador,origen:ventasDB[i].origen,autogen:ventasDB[i].autogen,m2:ventasDB[i].m2,pm2:ventasDB[i].pm2,unidad:ventasDB[i].unidad,proyecto:ventasDB[i].proyecto,monto:ventasDB[i].monto,com_tot:ventasDB[i].comTot,com_trust:ventasDB[i].comTrust,disp:ventasDB[i].disp});
-  closeEditVentaR(); refreshAllModules(); showToastR('Operación actualizada');
+  const oldId = ventasDB[i]._id;
+  ventasDB[i] = {
+    _id: oldId,
+    q: document.getElementById('evQR').value,
+    mes: document.getElementById('evMesR').value,
+    un: document.getElementById('evUNR').value,
+    tipo: document.getElementById('evTipoR').value,
+    ch: document.getElementById('evCHR').value,
+    asesor: document.getElementById('evAsesorR').value,
+    cliente: document.getElementById('evClienteR').value,
+    opcionador: document.getElementById('evOpcionadorR').value||'',
+    origen: document.getElementById('evOrigenR').value,
+    inmobiliaria: document.getElementById('evInmobiliariaR') ? document.getElementById('evInmobiliariaR').value||'' : '',
+    autogen: document.getElementById('evAutogenR').checked ? 'Sí' : 'No',
+    unidad: document.getElementById('evUnidadR').value,
+    proyecto: document.getElementById('evProyectoR').value||'',
+    m2: parseFloat(document.getElementById('evM2R').value)||0,
+    pm2: parseFloat(document.getElementById('evPM2R').value)||0,
+    monto,
+    comTot: parseFloat(document.getElementById('evComTotR').value)||0,
+    comTrust: parseFloat(document.getElementById('evComTrustR').value)||0,
+    disp: parseFloat(document.getElementById('evDispR').value)||0,
+  };
+  if(oldId){
+    sbUpdate('ventas', oldId, {q:ventasDB[i].q, mes:ventasDB[i].mes, un:ventasDB[i].un,
+      tipo:ventasDB[i].tipo, ch:ventasDB[i].ch, asesor:ventasDB[i].asesor,
+      cliente:ventasDB[i].cliente, opcionador:ventasDB[i].opcionador,
+      origen:ventasDB[i].origen, inmobiliaria:ventasDB[i].inmobiliaria,
+      autogen:ventasDB[i].autogen, m2:ventasDB[i].m2, pm2:ventasDB[i].pm2,
+      unidad:ventasDB[i].unidad, proyecto:ventasDB[i].proyecto, monto:ventasDB[i].monto,
+      com_tot:ventasDB[i].comTot, com_trust:ventasDB[i].comTrust, disp:ventasDB[i].disp});
+  }
+  closeEditVentaR();
+  refreshAllModules();
+  showToast('Operación actualizada');
 }
-
-// ── Edit listing ──
 function openEditListingR(i){
   buildRegistrosSelects();
   const r=listingsDB[i];
