@@ -26,6 +26,15 @@
 .module-page{display:none;min-height:100vh;}
 .module-page.active{display:block;}
 .back-bar{display:flex;align-items:center;gap:12px;padding:14px 24px;background:#1A1916;position:sticky;top:0;z-index:500;}
+.sb-status{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;}
+.sb-status.ok{background:rgba(15,110,86,0.3);color:#6EFFC0;}
+.sb-status.error{background:rgba(192,57,43,0.35);color:#FF8A80;}
+.sb-status.loading{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);}
+.sb-dot{width:7px;height:7px;border-radius:50%;}
+.sb-status.ok .sb-dot{background:#6EFFC0;}
+.sb-status.error .sb-dot{background:#FF8A80;animation:blink 1s infinite;}
+.sb-status.loading .sb-dot{background:rgba(255,255,255,0.4);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
 .back-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;}
 .back-btn:hover{background:rgba(255,255,255,0.18);}
 .back-bar-title{font-size:13px;color:rgba(255,255,255,0.5);}
@@ -144,7 +153,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .advisor-name{font-size:20px;font-weight:600;letter-spacing:-0.2px;}
 .advisor-role{font-size:12px;color:var(--text3);margin-top:2px;}
 /* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 12px 12px;text-align:center;box-shadow:var(--shadow);}
 .kpi .lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:7px;line-height:1.3;}
 .kpi .val{font-size:16px;font-weight:600;color:var(--text);line-height:1.2;font-family:'DM Mono',monospace;}
@@ -389,6 +398,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="back-btn" onclick="goBack()">← Inicio</button>
     <span class="back-bar-title">TRUST &nbsp;/&nbsp;</span>
     <span class="back-bar-name">Realtors</span>
+    <div class="sb-status loading" id="sbStatusRealtors"><div class="sb-dot"></div><span>Conectando...</span></div>
   </div>
   
 <div class="layout">
@@ -617,6 +627,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="back-btn" onclick="goBack()">← Inicio</button>
     <span class="back-bar-title">TRUST &nbsp;/&nbsp;</span>
     <span class="back-bar-name">Registros</span>
+    <div class="sb-status loading" id="sbStatusRegistros"><div class="sb-dot"></div><span>Conectando...</span></div>
   </div>
   <div class="reg-page">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -671,8 +682,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <option value="Diciembre">Diciembre</option></select></div>
       <div class="form-row"><label>UN</label><select id="avUN"><option value="Brokerage">Brokerage</option><option value="Developments">Developments</option></select></div>
       <div class="form-row"><label>Tipo</label><select id="avTipo"><option value="Venta">Venta</option><option value="Renta">Renta</option></select></div>
-      <div class="form-row"><label>CH</label><select id="avCH"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+
       <div class="form-row"><label>Asesor</label><select id="avAsesor"><option value="">Cargando...</option></select></div>
+      <div class="form-row" style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <input type="checkbox" id="avCompartida" style="width:16px;height:16px;accent-color:#1A1916;cursor:pointer;flex-shrink:0;margin:0;" onchange="toggleAvCompartida()">
+        <label for="avCompartida" style="font-size:13px;color:#1A1916;font-weight:500;cursor:pointer;text-transform:none;letter-spacing:0;margin:0;">Operación compartida (50/50)</label>
+      </div>
+      <div class="form-row" id="avAsesor2Row" style="display:none;"><label>Segundo asesor</label><select id="avAsesor2"><option value="">— Seleccionar —</option></select></div>
       <div class="form-row span2"><label>Cliente</label><input type="text" id="avCliente" placeholder="Nombre del cliente"></div>
       <div class="form-row"><label>Opcionador</label><select id="avOpcionador"><option value="">— Ninguno —</option></select></div>
       <div class="form-row"><label>Origen</label><select id="avOrigen"><option value="F&F">F&F</option><option value="Lead">Lead</option><option value="Inmobiliaria">Inmobiliaria</option><option value="Broker">Broker</option><option value="META">META</option><option value="Lona">Lona</option></select></div>
@@ -757,7 +773,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <option value="Diciembre">Diciembre</option></select></div>
       <div class="form-row"><label>UN</label><select id="evUNR"><option value="Brokerage">Brokerage</option><option value="Developments">Developments</option></select></div>
       <div class="form-row"><label>Tipo</label><select id="evTipoR"><option value="Venta">Venta</option><option value="Renta">Renta</option></select></div>
-      <div class="form-row"><label>CH</label><select id="evCHR"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+
       <div class="form-row"><label>Asesor</label><select id="evAsesorR"><option value="">Cargando...</option></select></div>
       <div class="form-row span2"><label>Cliente</label><input type="text" id="evClienteR"></div>
       <div class="form-row"><label>Opcionador</label><select id="evOpcionadorR"><option value="">— Ninguno —</option></select></div>
@@ -871,6 +887,15 @@ function mapListing(r) {
 }
 
 // Load data — seed first (instant), then Supabase (background)
+function setSBStatus(connected, msg) {
+  ['sbStatusRealtors','sbStatusRegistros'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.className = 'sb-status ' + (connected ? 'ok' : 'error');
+    el.innerHTML = '<div class="sb-dot"></div><span>' + msg + '</span>';
+  });
+}
+
 function loadData(onReady) {
   // Step 1: load seed immediately so UI shows something right away
   ventasDB = SEED_VENTAS.map((r,i) => ({...r, _id:null}));
@@ -881,11 +906,22 @@ function loadData(onReady) {
   Promise.all([sbGet('ventas'), sbGet('listings')]).then(([vRows, lRows]) => {
     if(vRows && vRows.length > 0) ventasDB = vRows.map(mapVenta);
     if(lRows && lRows.length > 0) listingsDB = lRows.map(mapListing);
+    setSBStatus(true, 'Supabase ✓');
     if(onReady) onReady('supabase');
   }).catch(() => {
+    setSBStatus(false, '⚠️ Sin conexión — datos NO se guardan');
     if(onReady) onReady('seed-only');
   });
 }
+
+// Keep Supabase alive — ping every 4 minutes to prevent pausing
+setInterval(() => {
+  sbGet('ventas').then(rows => {
+    setSBStatus(true, 'Supabase ✓');
+  }).catch(() => {
+    setSBStatus(false, '⚠️ Sin conexión — datos NO se guardan');
+  });
+}, 4 * 60 * 1000);
 
 // Called after any data change — refreshes all active modules
 function refreshAllModules() {
@@ -995,21 +1031,30 @@ function gd(a,p){
   return{...a[p]};
 }
 
-function rc(ing){
-  if(ing>=1000000)return{l:'TOP Realtor',bg:'#FAEEDA',c:'#633806'};
-  if(ing>=750000) return{l:'Sr. Realtor', bg:'#E6F1FB',c:'#0C447C'};
-  if(ing>=500000) return{l:'Realtor',     bg:'#E1F5EE',c:'#085041'};
-  if(ing>=250000) return{l:'Jr. Realtor', bg:'#EEEDFE',c:'#3C3489'};
-  return{l:'Sin categoría',bg:'#FCEBEB',c:'#791F1F'};
+function rc(a){
+  // Category based on PREVIOUS Q performance
+  const prevMap={q1:null,q2:'q1',q3:'q2',q4:'q3'};
+  const prevQ=prevMap[q]||null;
+  if(!prevQ||!a||!a[prevQ]){
+    // Q1 or no data: everyone starts as Realtor
+    return{l:'Realtor',bg:'#E1F5EE',c:'#085041'};
+  }
+  const pIng=a[prevQ].ing||0;
+  const pLst=a[prevQ].lst||0;
+  if(pIng>=225000 && pLst>=2){
+    return{l:'TOP Realtor',bg:'#FAEEDA',c:'#633806'};
+  }
+  return{l:'Realtor',bg:'#E1F5EE',c:'#085041'};
 }
 
 function score(a,p){
   p=p||q;
   if(p==='ranking')p=rankQ==='acum'?'acum':rankQ;
-  const d=gd(a,p);const m=PI[p==='acum'?'acum':p];
-  const mxL=Math.max(...team.map(t=>gd(t,p).lst),1);
-  const mxO=Math.max(...team.map(t=>gd(t,p).ops),1);
-  return Math.round(Math.min(d.ing/m.ing,1)*70+(d.lst/mxL)*20+(d.ops/mxO)*10);
+  const d=gd(a,p);
+  // 80% ingresos vs líder, 20% listings vs líder
+  const mxIng=Math.max(...team.map(t=>gd(t,p).ing),1);
+  const mxLst=Math.max(...team.map(t=>gd(t,p).lst),1);
+  return Math.round((d.ing/mxIng)*80+(d.lst/mxLst)*20);
 }
 
 function rp(a){
@@ -1085,16 +1130,15 @@ function renderKPIs(a){
   if(isp()){el.innerHTML=`<div class="kpi fu" style="grid-column:1/-1;text-align:left"><div class="lbl">Periodo no iniciado</div><div class="val" style="font-size:14px;margin-top:6px;">Sin datos para este trimestre.</div></div>`;return;}
   const d=gd(a);const m=PI[q];const da=gd(a,'acum');
   const piI=pct(d.ing,m.ing),piV=pct(d.vol,m.vol);
-  const cat=rc(da.ing);const conv=d.leads>0?((d.ops/d.leads)*100).toFixed(1)+'%':'—';
+  const cat=rc(a);
   el.innerHTML=`
     <div class="kpi fu"><div class="lbl">Operaciones</div><div class="val">${d.ops}</div><div class="hint">${d.v} venta${d.v!==1?'s':''} · ${d.r} renta${d.r!==1?'s':''}</div></div>
     <div class="kpi fu"><div class="lbl">Ingresos</div><div class="val">${fm(d.ing)}</div><div class="hint" style="color:${pc(piI)}">${piI}% de meta</div></div>
-    <div class="kpi fu"><div class="lbl">Ventas</div><div class="val">${fm(d.vol)}</div><div class="hint" style="color:${pc(piV)}">${piV}% de meta</div></div>
+    
     <div class="kpi fu"><div class="lbl">Listings</div><div class="val">${d.lst}</div><div class="hint">${d.lst_val?fm(d.lst_val):'sin valor'}</div></div>
     <div class="kpi fu"><div class="lbl">Venta promedio</div><div class="val">${d.ops>0?fm(d.vol/d.ops):'—'}</div><div class="hint">por operación</div></div>
     <div class="kpi fu"><div class="lbl">Ingreso promedio</div><div class="val">${d.ops>0?fm(d.ing/d.ops):'—'}</div><div class="hint">por operación</div></div>
-    <div class="kpi fu"><div class="lbl">Leads recibidos</div><div class="val">${d.leads||0}</div><div class="hint">pendiente captura</div></div>
-    <div class="kpi fu"><div class="lbl">% Conversión</div><div class="val">${conv}</div><div class="hint">ops / leads</div></div>
+
     <div class="kpi fu"><div class="lbl">Realtor Program</div><div class="val" style="font-size:13px;line-height:1.9;"><span style="display:inline-block;padding:3px 10px;border-radius:20px;background:${cat.bg};color:${cat.c};font-size:11px;font-weight:600;">${cat.l}</span></div><div class="hint">&nbsp;</div></div>
     <div class="kpi fu"><div class="lbl">Lugar en ranking</div><div class="val" style="font-size:15px;">${rp(a)}</div><div class="hint">${PI[q].label}</div></div>`;
 }
@@ -1115,8 +1159,7 @@ function renderMetas(a){
       <div class="prog-pct" style="color:${ci}">${pi}% alcanzado</div>
     </div>
     <div class="prog-wrap" style="margin-top:12px;">
-      <div class="prog-top"><span>Ventas</span><span>${ff(d.vol)} / ${ff(m.vol)}</span></div>
-      <div class="prog-bg"><div class="prog-fill" style="width:${Math.min(pv,100)}%;background:${cv}"></div></div>
+      </div>
       <div class="prog-pct" style="color:${cv}">${pv}% alcanzado</div>
     </div>
     <div class="faltante-row">
@@ -1212,17 +1255,16 @@ function renderTeam(){
     <div class="kpi fu"><div class="lbl">Meta listings equipo</div><div class="val">${mL}</div><div class="hint">${m.lst} × ${n} asesores</div></div>`;
   document.getElementById('teamTableTitle').textContent=`Detalle por asesor — ${m.label}`;
   const sorted=[...team].sort((a,b)=>score(b)-score(a));
-  document.getElementById('teamTable').innerHTML=`<thead><tr><th>#</th><th>Asesor</th><th>Ops</th><th>Ingresos</th><th>% Ing.</th><th>Ventas</th><th>% Vta.</th><th>Listings</th><th>Realtor</th><th>Score</th></tr></thead><tbody>`+
+  document.getElementById('teamTable').innerHTML=`<thead><tr><th>#</th><th>Asesor</th><th>Ops</th><th>Ingresos</th><th>% Ing.</th><th>Listings</th><th>Realtor</th><th>Score</th></tr></thead><tbody>`+
     sorted.map((a,i)=>{
       const d=gd(a);const da=gd(a,'acum');const pi=pct(d.ing,m.ing),pv=pct(d.vol,m.vol);
-      const cat=rc(da.ing);const sc=score(a);const idx=team.indexOf(a);
+      const cat=rc(a);const sc=score(a);const idx=team.indexOf(a);
+      const pl=pct(d.lst,m.lst);
       const med=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
       return`<tr><td style="color:var(--text3);font-weight:500">${med||i+1}</td>
         <td><div style="display:flex;align-items:center;gap:7px;">${avEl(idx,a.color,a.ini,22)}<span>${a.name.split(' ')[0]}</span>${a.nueva?'<span class="tag-new">nueva</span>':''}</div></td>
         <td>${d.ops}</td><td style="font-family:'DM Mono',monospace">${fm(d.ing)}</td>
         <td style="font-weight:600;color:${pc(pi)}">${pi}%</td>
-        <td style="font-family:'DM Mono',monospace">${fm(d.vol)}</td>
-        <td style="font-weight:600;color:${pc(pv)}">${pv}%</td>
         <td>${d.lst}</td>
         <td><span style="padding:2px 8px;border-radius:20px;background:${cat.bg};color:${cat.c};font-size:10px;font-weight:600;">${cat.l}</span></td>
         <td><span class="pill" style="background:${sbg(sc)};color:${stx(sc)}">${a.nueva?'nueva':sc}</span></td></tr>`;
@@ -1261,7 +1303,7 @@ function renderRanking(){
   document.getElementById('rankTable').innerHTML=`
     <table class="ttbl"><thead><tr><th>#</th><th>Asesor</th><th>Ops</th><th>Ingresos</th><th>% Meta</th><th>Listings</th><th>Realtor</th><th>Score</th></tr></thead>
     <tbody>${sorted.map((a,i)=>{
-      const cat=rc(gd(a,'acum').ing);
+      const cat=rc(a);
       const pi=pct(a.d.ing,m.ing);
       const med=i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
       return`<tr>
@@ -1376,7 +1418,8 @@ function renderVentasTable(){
         case 'mes': return '<td>'+(r.mes||'—')+'</td>';
         case 'un': return '<td>'+r.un+'</td>';
         case 'tipo': return '<td><span class="tag-pill" style="background:'+(r.tipo==='Venta'?'#E1F5EE':'#EEEDFE')+';color:'+(r.tipo==='Venta'?'#085041':'#3C3489')+'">'+r.tipo+'</span></td>';
-        case 'ch': return '<td>'+r.ch+'</td>';
+        case 'compartida': return '<td>'+(r.compartida==='Sí'?'<span class="tag-pill" style="background:#FFF0E0;color:#9A5000;">50/50</span>':'—')+'</td>';
+
         case 'asesor': return '<td>'+asesorAvEl(r.asesor)+'</td>';
         case 'cliente': return '<td>'+(r.cliente||'—')+'</td>';
         case 'opcionador': return '<td>'+(r.opcionador?asesorAvEl(r.opcionador):'—')+'</td>';
@@ -1575,7 +1618,6 @@ const VENTAS_COLS = [
   {key:'mes',    label:'Mes'},
   {key:'un',     label:'UN'},
   {key:'tipo',   label:'Tipo'},
-  {key:'ch',     label:'CH'},
   {key:'asesor', label:'Asesor'},
   {key:'cliente',label:'Cliente'},
   {key:'opcionador',label:'Opcionador'},
@@ -1912,7 +1954,7 @@ let resChartInst=null;
 
 function computeQData(){
   const d={q1:{venta:0,ingreso:0,ops:0},q2:{venta:0,ingreso:0,ops:0},q3:{venta:0,ingreso:0,ops:0},q4:{venta:0,ingreso:0,ops:0}};
-  if(typeof ventasDB!=='undefined') ventasDB.forEach(r=>{const q=r.q||'q1';if(d[q]){d[q].venta+=r.monto||0;d[q].ingreso+=r.disp||0;d[q].ops+=1;}});
+  if(typeof ventasDB!=='undefined') ventasDB.forEach(r=>{const q=r.q||'q1';if(d[q]){d[q].venta+=r.monto||0;d[q].ingreso+=r.disp||0;d[q].ops+=r.compartida==='Sí'?0.5:1;}});
   return d;
 }
 function fmtRes(n){
@@ -2053,7 +2095,7 @@ let dragSrcIdxR = null;
 
 const VENTAS_COLS_R = [
   {key:'q',label:'Q'},{key:'mes',label:'Mes'},
-  {key:'un',label:'UN'},{key:'tipo',label:'Tipo'},{key:'ch',label:'CH'},
+  {key:'un',label:'UN'},{key:'tipo',label:'Tipo'},{key:'compartida',label:'Comp.'},
   {key:'asesor',label:'Asesor'},{key:'cliente',label:'Cliente'},
   {key:'opcionador',label:'Opcionador'},{key:'origen',label:'Origen'},
   {key:'autogen',label:'Autogen.'},{key:'unidad',label:'Unidad'},
@@ -2223,7 +2265,8 @@ function renderVentasTableR(){
         case 'mes': return '<td>'+(r.mes||'—')+'</td>';
         case 'un': return '<td>'+r.un+'</td>';
         case 'tipo': return '<td><span class="tag-pill" style="background:'+(r.tipo==='Venta'?'#E1F5EE':'#EEEDFE')+';color:'+(r.tipo==='Venta'?'#085041':'#3C3489')+'">'+r.tipo+'</span></td>';
-        case 'ch': return '<td>'+r.ch+'</td>';
+        case 'compartida': return '<td>'+(r.compartida==='Sí'?'<span class="tag-pill" style="background:#FFF0E0;color:#9A5000;">50/50</span>':'—')+'</td>';
+
         case 'asesor': return '<td>'+asesorAvR(r.asesor)+'</td>';
         case 'cliente': return '<td>'+(r.cliente||'—')+'</td>';
         case 'opcionador': return '<td>'+(r.opcionador?asesorAvR(r.opcionador):'—')+'</td>';
@@ -2298,10 +2341,52 @@ function closeAddVentaOutsideR(e){ if(e.target===document.getElementById('addVen
 function saveAddVentaR(){
   const monto=parseFloat(document.getElementById('avMonto').value)||0;
   if(!monto){ alert('El monto de venta es obligatorio.'); return; }
+  const compartida=document.getElementById('avCompartida').checked;
+  const asesor2=compartida?document.getElementById('avAsesor2').value:'';
+  if(compartida&&!asesor2){ alert('Selecciona el segundo asesor.'); return; }
+  const divisor=compartida?2:1;
+  const dispFull=parseFloat(document.getElementById('avDisp').value)||0;
+  const montoSplit=Math.round(monto/divisor*100)/100;
+  const dispSplit=Math.round(dispFull/divisor*100)/100;
+  const base={
+    q:document.getElementById('avQ').value,mes:document.getElementById('avMes').value,
+    un:document.getElementById('avUN').value,tipo:document.getElementById('avTipo').value,
+    cliente:document.getElementById('avCliente').value,opcionador:document.getElementById('avOpcionador').value||'',
+    origen:document.getElementById('avOrigen').value,inmobiliaria:document.getElementById('avInmobiliaria').value||'',
+    autogen:document.getElementById('avAutogen').checked?'Sí':'No',
+    m2:parseFloat(document.getElementById('avM2').value)||0,
+    pm2:parseFloat(document.getElementById('avPM2').value)||0,
+    unidad:document.getElementById('avUnidad').value,proyecto:document.getElementById('avProyecto').value||'',
+    comTot:parseFloat(document.getElementById('avComTot').value)||0,
+    comTrust:parseFloat(document.getElementById('avComTrust').value)||0,
+    compartida:compartida?'Sí':'No',
+    monto:montoSplit,disp:dispSplit
+  };
+  const asesores=compartida?[document.getElementById('avAsesor').value,asesor2]:[document.getElementById('avAsesor').value];
+  asesores.forEach(asesor=>{
+    const rec={...base,asesor};
+    const sbRow={q:rec.q,mes:rec.mes,un:rec.un,tipo:rec.tipo,ch:rec.ch,asesor:rec.asesor,
+      cliente:rec.cliente,opcionador:rec.opcionador,origen:rec.origen,inmobiliaria:rec.inmobiliaria,
+      autogen:rec.autogen,m2:rec.m2,pm2:rec.pm2,unidad:rec.unidad,proyecto:rec.proyecto,
+      monto:rec.monto,com_tot:rec.comTot,com_trust:rec.comTrust,disp:rec.disp,compartida:rec.compartida};
+    sbInsert('ventas',sbRow).then(saved=>{if(saved)rec._id=saved.id;});
+    ventasDB.push(rec);
+  });
+  closeAddVentaR();
+  ['avCliente','avProyecto','avM2','avPM2','avMonto','avComTot','avComTrust','avDisp','avInmobiliaria'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('avAutogen').checked=false;
+  document.getElementById('avCompartida').checked=false;
+  document.getElementById('avAsesor2Row').style.display='none';
+  window._avDispManual=false;
+  document.getElementById('avDisp').readOnly=true;
+  document.getElementById('avDisp').style.background='#EDECEA';
+  document.getElementById('avDisp').style.cursor='not-allowed';
+  refreshAllModules();
+  showToast(base.tipo+' guardada'+(compartida?' (50/50)':''));
   const rec={
     q:document.getElementById('avQ').value, mes:document.getElementById('avMes').value,
     un:document.getElementById('avUN').value, tipo:document.getElementById('avTipo').value,
-    ch:document.getElementById('avCH').value, asesor:document.getElementById('avAsesor').value,
+    asesor:document.getElementById('avAsesor').value,
     cliente:document.getElementById('avCliente').value, opcionador:document.getElementById('avOpcionador').value||'',
     origen:document.getElementById('avOrigen').value, inmobiliaria:document.getElementById('avInmobiliaria').value||'',
     autogen:document.getElementById('avAutogen').checked?'Sí':'No',
@@ -2330,6 +2415,11 @@ function saveAddVentaR(){
 }
 
 // Auto-calc helpers for add venta modal
+function toggleAvCompartida(){
+  const checked=document.getElementById('avCompartida').checked;
+  document.getElementById('avAsesor2Row').style.display=checked?'block':'none';
+}
+
 function calcAvDerived(){
   const monto=parseFloat(document.getElementById('avMonto').value)||0;
   const m2=parseFloat(document.getElementById('avM2').value)||0;
@@ -2395,7 +2485,6 @@ function openEditVentaR(i){
   document.getElementById('evMesR').value = r.mes||'Enero';
   document.getElementById('evUNR').value = r.un||'Brokerage';
   document.getElementById('evTipoR').value = r.tipo||'Venta';
-  document.getElementById('evCHR').value = r.ch||'No';
   document.getElementById('evAsesorR').value = r.asesor||'';
   document.getElementById('evClienteR').value = r.cliente||'';
   document.getElementById('evOpcionadorR').value = r.opcionador||'';
@@ -2425,7 +2514,6 @@ function saveEditVentaR(){
     mes: document.getElementById('evMesR').value,
     un: document.getElementById('evUNR').value,
     tipo: document.getElementById('evTipoR').value,
-    ch: document.getElementById('evCHR').value,
     asesor: document.getElementById('evAsesorR').value,
     cliente: document.getElementById('evClienteR').value,
     opcionador: document.getElementById('evOpcionadorR').value||'',
@@ -2493,7 +2581,7 @@ function showToastR(msg){ showToast(msg); }
 
 function buildRegistrosSelects(){
   const names=TEAM_NAMES;
-  ['avAsesor','avOpcionador','alAsesor','evAsesorR','evOpcionadorR','elAsesorR'].forEach(id=>{
+  ['avAsesor','avAsesor2','avOpcionador','alAsesor','evAsesorR','evOpcionadorR','elAsesorR'].forEach(id=>{
     const sel=document.getElementById(id); if(!sel) return;
     const isOp=id.includes('pcionador');
     const cur=sel.value;
