@@ -2703,7 +2703,7 @@ function saveAddListingR(){
   const asesores=compartida?[document.getElementById('alAsesor').value,asesor2]:[document.getElementById('alAsesor').value];
   asesores.forEach(asesor=>{
     const rec={...base,asesor};
-    sbInsert('listings',{q:rec.q,mes:rec.mes,asesor:rec.asesor,tipoProp:rec.tipoProp,id_propiedad:rec.idPropiedad,tipo:rec.tipo,estatus:rec.estatus,monto:rec.monto,com:rec.com,compartida:rec.compartida}).then(saved=>{
+    sbInsert('listings',{q:rec.q,mes:rec.mes,asesor:rec.asesor,tipo_prop:rec.tipoProp,id_propiedad:rec.idPropiedad,tipo:rec.tipo,estatus:rec.estatus,monto:rec.monto,com:rec.com,compartida:rec.compartida}).then(saved=>{
       if(saved) rec._id=saved.id;
     }).catch(e=>console.error('sbInsert error:',e));
     listingsDB.push(rec);
