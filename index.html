@@ -1119,8 +1119,8 @@ const META_ING_Q=225000, META_VOL_Q=7500000, META_LST_Q=2;
 
 const PI={
   q1:{label:'Q1',range:'Enero – Marzo 2026',status:'Cerrado',sc:'#085041',sb:'#E1F5EE',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
-  q2:{label:'Q2',range:'Abril – Junio 2026',status:'En curso',sc:'#185FA5',sb:'#E6F1FB',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
-  q3:{label:'Q3',range:'Julio – Sep 2026',status:'Próximo',sc:'#6B6A66',sb:'#EDECEA',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
+  q2:{label:'Q2',range:'Abril – Junio 2026',status:'Cerrado',sc:'#085041',sb:'#E1F5EE',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
+  q3:{label:'Q3',range:'Julio – Sep 2026',status:'En curso',sc:'#185FA5',sb:'#E6F1FB',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
   q4:{label:'Q4',range:'Oct – Dic 2026',status:'Próximo',sc:'#6B6A66',sb:'#EDECEA',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
   acum:{label:'Acumulado',range:'Enero – Abril 2026',status:'En curso',sc:'#185FA5',sb:'#E6F1FB',ing:META_ING_Q*4,vol:META_VOL_Q*4,lst:META_LST_Q*4},
   ranking:{label:'Ranking',range:'Comparativo del equipo',status:'',sc:'',sb:'',ing:META_ING_Q,vol:META_VOL_Q,lst:META_LST_Q},
@@ -1194,19 +1194,12 @@ function gd(a,p){
 }
 
 function rc(a){
-  // Category based on PREVIOUS Q performance
-  // TOP Realtor = top 2 in ranking AND met both targets (ing>=225K AND lst>=2)
-  const prevMap={q1:null,q2:'q1',q3:'q2',q4:'q3'};
-  const prevQ=prevMap[q]||null;
-  if(!prevQ||!a||!a[prevQ]){
-    return{l:'Realtor',bg:'rgba(255,255,255,0.15)',c:'#fff'};
-  }
-  const pIng=a[prevQ].ing||0;
-  const pLst=a[prevQ].lst||0;
-  const metBoth=pIng>=225000&&pLst>=2;
+  // TOP Realtor = top 2 in current Q ranking AND met both targets
+  const d=gd(a,q);
+  const metBoth=d.ing>=225000&&d.lst>=2;
   if(!metBoth) return{l:'Realtor',bg:'rgba(255,255,255,0.15)',c:'#fff'};
-  // Check if in top 2 by score in prevQ
-  const sorted=[...team].sort((x,y)=>score(y,prevQ)-score(x,prevQ));
+  // Check if in top 2 by score in current Q
+  const sorted=[...team].sort((x,y)=>score(y,q)-score(x,q));
   const rank=sorted.findIndex(t=>t.name===a.name);
   if(rank<2){
     return{l:'TOP Realtor',bg:'#C0392B',c:'#fff'};
