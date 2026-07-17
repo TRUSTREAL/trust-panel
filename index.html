@@ -2559,7 +2559,7 @@ function openAddVentaR(){
 function closeAddVentaR(){ document.getElementById('addVentaOverlayR').classList.remove('open'); }
 function closeAddVentaOutsideR(e){ if(e.target===document.getElementById('addVentaOverlayR')) closeAddVentaR(); }
 
-function saveAddVentaR(){
+async function saveAddVentaR(){
   const monto=parseFloat(document.getElementById('avMonto').value)||0;
   if(!monto){ alert('El monto de venta es obligatorio.'); return; }
   const compartida=document.getElementById('avCompartida').checked;
@@ -2584,15 +2584,18 @@ function saveAddVentaR(){
     monto:montoSplit,disp:dispSplit
   };
   const asesores=compartida?[document.getElementById('avAsesor').value,asesor2]:[document.getElementById('avAsesor').value];
-  asesores.forEach(asesor=>{
+  for(const asesor of asesores){
     const rec={...base,asesor};
     const sbRow={q:rec.q,mes:rec.mes,un:rec.un,tipo:rec.tipo,ch:rec.ch,asesor:rec.asesor,
       cliente:rec.cliente,opcionador:rec.opcionador,origen:rec.origen,inmobiliaria:rec.inmobiliaria,
       autogen:rec.autogen,m2:rec.m2,pm2:rec.pm2,unidad:rec.unidad,proyecto:rec.proyecto,
       monto:rec.monto,com_tot:rec.comTot,com_trust:rec.comTrust,disp:rec.disp,compartida:rec.compartida};
-    sbInsert('ventas',sbRow).then(saved=>{if(saved)rec._id=saved.id;});
+    try {
+      const saved=await sbInsert('ventas',sbRow);
+      if(saved) rec._id=saved.id;
+    } catch(e){ console.error('Error:',e); }
     ventasDB.push(rec);
-  });
+  }
   closeAddVentaR();
   ['avCliente','avProyecto','avM2','avPM2','avMonto','avComTot','avComTrust','avDisp','avInmobiliaria'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('avAutogen').checked=false;
@@ -2602,8 +2605,6 @@ function saveAddVentaR(){
   document.getElementById('avDisp').readOnly=true;
   document.getElementById('avDisp').style.background='#EDECEA';
   document.getElementById('avDisp').style.cursor='not-allowed';
-  if(typeof initFromDB==='function') initFromDB();
-  refreshAllModules();
   showToast(base.tipo+' guardada'+(compartida?' (50/50)':''));
   const rec={
     q:document.getElementById('avQ').value, mes:document.getElementById('avMes').value,
@@ -2688,7 +2689,7 @@ function openAddListingR(){
 function closeAddListingR(){ document.getElementById('addListingOverlayR').classList.remove('open'); }
 function closeAddListingOutsideR(e){ if(e.target===document.getElementById('addListingOverlayR')) closeAddListingR(); }
 
-function saveAddListingR(){
+async function saveAddListingR(){
   const compartida=document.getElementById('alCompartida').checked;
   const asesor2=compartida?document.getElementById('alAsesor2').value:'';
   if(compartida&&!asesor2){ alert('Selecciona el segundo asesor.'); return; }
@@ -2703,12 +2704,18 @@ function saveAddListingR(){
     compartida:compartida?'Sí':'No',
   };
   const asesores=compartida?[document.getElementById('alAsesor').value,asesor2]:[document.getElementById('alAsesor').value];
-  asesores.forEach(asesor=>{
-    const rec={...base,asesor};
-    sbInsert('listings',{q:rec.q,mes:rec.mes,asesor:rec.asesor,tipoProp:rec.tipoProp,id_propiedad:rec.idPropiedad,tipo:rec.tipo,estatus:rec.estatus,monto:rec.monto,com:rec.com,compartida:rec.compartida}).then(saved=>{if(saved)rec._id=saved.id;});
-    listingsDB.push(rec);
-  });
   closeAddListingR();
+  showToastR('Guardando...');
+  for(const asesor of asesores){
+    const rec={...base,asesor};
+    try {
+      const saved = await sbInsert('listings',{q:rec.q,mes:rec.mes,asesor:rec.asesor,tipoProp:rec.tipoProp,id_propiedad:rec.idPropiedad,tipo:rec.tipo,estatus:rec.estatus,monto:rec.monto,com:rec.com,compartida:rec.compartida});
+      if(saved) rec._id=saved.id;
+      listingsDB.push(rec);
+    } catch(e) {
+      console.error('Error guardando listing:', e);
+    }
+  }
   ['alMonto','alCom'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('alCompartida').checked=false;
   document.getElementById('alAsesor2Row').style.display='none';
