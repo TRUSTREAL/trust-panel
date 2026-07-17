@@ -2584,18 +2584,15 @@ function saveAddVentaR(){
     monto:montoSplit,disp:dispSplit
   };
   const asesores=compartida?[document.getElementById('avAsesor').value,asesor2]:[document.getElementById('avAsesor').value];
-  for(const asesor of asesores){
+  asesores.forEach(asesor=>{
     const rec={...base,asesor};
     const sbRow={q:rec.q,mes:rec.mes,un:rec.un,tipo:rec.tipo,ch:rec.ch,asesor:rec.asesor,
       cliente:rec.cliente,opcionador:rec.opcionador,origen:rec.origen,inmobiliaria:rec.inmobiliaria,
       autogen:rec.autogen,m2:rec.m2,pm2:rec.pm2,unidad:rec.unidad,proyecto:rec.proyecto,
       monto:rec.monto,com_tot:rec.comTot,com_trust:rec.comTrust,disp:rec.disp,compartida:rec.compartida};
-    try {
-      const saved=await sbInsert('ventas',sbRow);
-      if(saved) rec._id=saved.id;
-    } catch(e){ console.error('Error:',e); }
+    sbInsert('ventas',sbRow).then(saved=>{if(saved)rec._id=saved.id;}).catch(e=>console.error(e));
     ventasDB.push(rec);
-  }
+  });
   closeAddVentaR();
   ['avCliente','avProyecto','avM2','avPM2','avMonto','avComTot','avComTrust','avDisp','avInmobiliaria'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('avAutogen').checked=false;
@@ -2891,7 +2888,18 @@ function goTo(module){
     renderResultados();
   }
   if(module==='registros'){
-    initRegistros();
+    window._registrosInited = true;
+    buildRegistrosSelects();
+    // Show data already in memory first
+    renderRegistros();
+    // Then reload fresh from Supabase in background
+    Promise.all([sbGet('ventas'), sbGet('listings')]).then(([vRows, lRows]) => {
+      if(vRows && vRows.length > 0) ventasDB = vRows.map(mapVenta);
+      if(lRows && lRows.length > 0) listingsDB = lRows.map(mapListing);
+      else if(lRows && lRows.length === 0) listingsDB = [];
+      if(typeof initFromDB==='function') initFromDB();
+      renderRegistros();
+    });
   }
 }
 
@@ -2922,6 +2930,7 @@ loadData(function(src){
   if(window._realtorsInited) syncRealtors();
   if(window._resultadosInited) renderResultados();
   if(window._registrosInited) renderRegistros();
+  setSBStatus(src==='supabase'?true:false, src==='supabase'?'Supabase ✓':'Sin conexión');
 });
 </script>
 </body>
