@@ -2882,40 +2882,16 @@ function goTo(module){
   document.querySelectorAll('.module-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page'+module.charAt(0).toUpperCase()+module.slice(1)).classList.add('active');
   window.scrollTo(0,0);
-  if(module==='realtors'){
-    if(!window._realtorsInited){
-      window._realtorsInited=true;
-      initRealtors();
-    } else {
-      // Refresh data each time you open Realtors
-      loadData(function(src){
-        if(typeof initFromDB==='function') initFromDB();
-        if(typeof refreshCurrentView==='function') refreshCurrentView();
-      });
-    }
+  if(module==='realtors'&&!window._realtorsInited){
+    window._realtorsInited=true;
+    initRealtors();
   }
   if(module==='resultados'){
     window._resultadosInited=true;
     renderResultados();
   }
   if(module==='registros'){
-    // Show loading state immediately
-    window._registrosInited = true;
-    const tblV = document.getElementById('ventasTblR');
-    const tblL = document.getElementById('listingsTblR');
-    if(tblV) tblV.innerHTML='<thead></thead><tbody><tr><td colspan="20" style="text-align:center;padding:40px;color:var(--text3);">Cargando datos...</td></tr></tbody>';
-    if(tblL) tblL.innerHTML='<thead></thead><tbody><tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text3);">Cargando datos...</td></tr></tbody>';
-    // Load fresh from Supabase
-    Promise.all([sbGet('ventas'), sbGet('listings')]).then(([vRows, lRows]) => {
-      if(vRows && vRows.length > 0) ventasDB = vRows.map(mapVenta);
-      if(lRows && lRows.length > 0) listingsDB = lRows.map(mapListing);
-      if(typeof initFromDB==='function') initFromDB();
-      renderRegistros();
-      if(typeof renderResultados==='function' && window._resultadosInited) renderResultados();
-      if(window._realtorsInited && typeof refreshCurrentView==='function') refreshCurrentView();
-    }).catch(() => {
-      renderRegistros();
-    });
+    initRegistros();
   }
 }
 
