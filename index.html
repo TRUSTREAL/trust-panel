@@ -1321,10 +1321,19 @@ function renderHeader(a,idx){
               <div class="advisor-stat-val">${d.ops>0?fm(d.vol/d.ops):'—'}</div>
               <div class="advisor-stat-sub">por operación</div>
             </div>
-            <div class="advisor-stat">
-              <div class="advisor-stat-label">Listings</div>
-              <div class="advisor-stat-val">${d.lst}</div>
-              <div class="advisor-stat-sub" style="color:${piL>=100?'#6EFFC0':piL>=75?'#FFD97D':'rgba(255,255,255,0.35)'}">${piL}% de meta</div>
+            <div class="advisor-stat" style="flex-direction:row;align-items:flex-start;gap:12px;">
+              <div style="flex-shrink:0;">
+                <div class="advisor-stat-label">Listings</div>
+                <div class="advisor-stat-val">${d.lst}</div>
+                <div class="advisor-stat-sub" style="color:${piL>=100?'#6EFFC0':piL>=75?'#FFD97D':'rgba(255,255,255,0.35)'}">${piL}% de meta</div>
+              </div>
+              <div style="flex:1;min-width:0;padding-top:2px;">
+                ${(()=>{
+                  const ids=listingsDB.filter(l=>l.asesor===a.name&&l.q===q&&l.idPropiedad).map(l=>l.idPropiedad);
+                  if(!ids.length) return '';
+                  return ids.map(id=>`<div style="font-size:9px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;">· ${id}</div>`).join('');
+                })()}
+              </div>
             </div>
             <div class="advisor-stat">
               <div class="advisor-stat-label">Operaciones</div>
