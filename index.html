@@ -2896,11 +2896,22 @@ function goTo(module){
     renderResultados();
   }
   if(module==='registros'){
-    // Always reload fresh data from Supabase when opening Registros
-    loadData(function(src){
+    // Show loading state immediately
+    window._registrosInited = true;
+    const tblV = document.getElementById('ventasTblR');
+    const tblL = document.getElementById('listingsTblR');
+    if(tblV) tblV.innerHTML='<thead></thead><tbody><tr><td colspan="20" style="text-align:center;padding:40px;color:var(--text3);">Cargando datos...</td></tr></tbody>';
+    if(tblL) tblL.innerHTML='<thead></thead><tbody><tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text3);">Cargando datos...</td></tr></tbody>';
+    // Load fresh from Supabase
+    Promise.all([sbGet('ventas'), sbGet('listings')]).then(([vRows, lRows]) => {
+      if(vRows && vRows.length > 0) ventasDB = vRows.map(mapVenta);
+      if(lRows && lRows.length > 0) listingsDB = lRows.map(mapListing);
       if(typeof initFromDB==='function') initFromDB();
+      renderRegistros();
       if(typeof renderResultados==='function' && window._resultadosInited) renderResultados();
-      initRegistros();
+      if(window._realtorsInited && typeof refreshCurrentView==='function') refreshCurrentView();
+    }).catch(() => {
+      renderRegistros();
     });
   }
 }
