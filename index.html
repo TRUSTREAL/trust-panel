@@ -2559,7 +2559,7 @@ function openAddVentaR(){
 function closeAddVentaR(){ document.getElementById('addVentaOverlayR').classList.remove('open'); }
 function closeAddVentaOutsideR(e){ if(e.target===document.getElementById('addVentaOverlayR')) closeAddVentaR(); }
 
-async function saveAddVentaR(){
+function saveAddVentaR(){
   const monto=parseFloat(document.getElementById('avMonto').value)||0;
   if(!monto){ alert('El monto de venta es obligatorio.'); return; }
   const compartida=document.getElementById('avCompartida').checked;
@@ -2689,7 +2689,7 @@ function openAddListingR(){
 function closeAddListingR(){ document.getElementById('addListingOverlayR').classList.remove('open'); }
 function closeAddListingOutsideR(e){ if(e.target===document.getElementById('addListingOverlayR')) closeAddListingR(); }
 
-async function saveAddListingR(){
+function saveAddListingR(){
   const compartida=document.getElementById('alCompartida').checked;
   const asesor2=compartida?document.getElementById('alAsesor2').value:'';
   if(compartida&&!asesor2){ alert('Selecciona el segundo asesor.'); return; }
@@ -2704,18 +2704,14 @@ async function saveAddListingR(){
     compartida:compartida?'Sí':'No',
   };
   const asesores=compartida?[document.getElementById('alAsesor').value,asesor2]:[document.getElementById('alAsesor').value];
-  closeAddListingR();
-  showToastR('Guardando...');
-  for(const asesor of asesores){
+  asesores.forEach(asesor=>{
     const rec={...base,asesor};
-    try {
-      const saved = await sbInsert('listings',{q:rec.q,mes:rec.mes,asesor:rec.asesor,tipoProp:rec.tipoProp,id_propiedad:rec.idPropiedad,tipo:rec.tipo,estatus:rec.estatus,monto:rec.monto,com:rec.com,compartida:rec.compartida});
+    sbInsert('listings',{q:rec.q,mes:rec.mes,asesor:rec.asesor,tipoProp:rec.tipoProp,id_propiedad:rec.idPropiedad,tipo:rec.tipo,estatus:rec.estatus,monto:rec.monto,com:rec.com,compartida:rec.compartida}).then(saved=>{
       if(saved) rec._id=saved.id;
-      listingsDB.push(rec);
-    } catch(e) {
-      console.error('Error guardando listing:', e);
-    }
-  }
+    }).catch(e=>console.error('sbInsert error:',e));
+    listingsDB.push(rec);
+  });
+  closeAddListingR();
   ['alMonto','alCom'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('alCompartida').checked=false;
   document.getElementById('alAsesor2Row').style.display='none';
