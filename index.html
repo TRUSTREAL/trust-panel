@@ -2879,16 +2879,29 @@ function goTo(module){
   document.querySelectorAll('.module-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page'+module.charAt(0).toUpperCase()+module.slice(1)).classList.add('active');
   window.scrollTo(0,0);
-  if(module==='realtors'&&!window._realtorsInited){
-    window._realtorsInited=true;
-    initRealtors();
+  if(module==='realtors'){
+    if(!window._realtorsInited){
+      window._realtorsInited=true;
+      initRealtors();
+    } else {
+      // Refresh data each time you open Realtors
+      loadData(function(src){
+        if(typeof initFromDB==='function') initFromDB();
+        if(typeof refreshCurrentView==='function') refreshCurrentView();
+      });
+    }
   }
   if(module==='resultados'){
     window._resultadosInited=true;
     renderResultados();
   }
   if(module==='registros'){
-    initRegistros();
+    // Always reload fresh data from Supabase when opening Registros
+    loadData(function(src){
+      if(typeof initFromDB==='function') initFromDB();
+      if(typeof renderResultados==='function' && window._resultadosInited) renderResultados();
+      initRegistros();
+    });
   }
 }
 
