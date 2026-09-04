@@ -12,7 +12,7 @@
   --trust-gray:#97999B; --trust-gray-light:#E5E5E6; --trust-gray-bg:#F7F7F5;
   --trust-cream:#FAF8F3; --trust-accent:#C9A961;
   --ink:#1B1F1E; --ok:#2E7D5B; --err:#B3423A;
-  --st-seg:#2F6FB5; --st-cita:#E07B2A; --st-apa:#E9C33A; --st-venta:#2E7D5B; --st-perd:#B3423A;
+  --st-nc:#97999B; --st-seg:#2F6FB5; --st-cita:#E07B2A; --st-apa:#E9C33A; --st-venta:#2E7D5B; --st-perd:#B3423A;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -108,16 +108,18 @@ td.m{color:var(--trust-gray)}
 .flag{border:1px solid var(--trust-gray-light);background:#fff;padding:5px 9px;font-size:11px;font-weight:600;color:var(--trust-gray)}
 .flag:hover{border-color:var(--trust-green);color:var(--trust-green)}
 .flag.on{color:#fff}
+.flag.on.n{background:var(--st-nc);border-color:var(--st-nc)}
 .flag.on.s{background:var(--st-seg);border-color:var(--st-seg)}
 .flag.on.c{background:var(--st-cita);border-color:var(--st-cita)}
 .flag.on.a{background:var(--st-apa);border-color:var(--st-apa);color:var(--ink)}
 .flag.on.v{background:var(--st-venta);border-color:var(--st-venta)}
 .flag.on.p{background:var(--st-perd);border-color:var(--st-perd)}
+.fun.n{border-top-color:var(--st-nc)}.fun.n b{color:var(--st-nc)}
 .fun.s{border-top-color:var(--st-seg)}.fun.s b{color:var(--st-seg)}
 .fun.c{border-top-color:var(--st-cita)}.fun.c b{color:var(--st-cita)}
 .fun.a{border-top-color:var(--st-apa)}.fun.a b{color:#B8951D}
 .fun.p{border-top-color:var(--st-perd)}.fun.p b{color:var(--st-perd)}
-.funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.funnel{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
 .fun{border-top:3px solid var(--trust-green);padding-top:12px}
 .fun.v{border-top-color:var(--st-venta)}
 .fun b{display:block;font-family:Lora,serif;font-size:32px;font-weight:600;color:var(--trust-green);line-height:1.05}
@@ -143,11 +145,11 @@ td.m{color:var(--trust-gray)}
 .rephead{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--trust-green);padding-bottom:10px;margin-bottom:18px}
 .rephead h1{font-size:26px}
 .rephead .sub{margin:0}
-.repnums{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+.repnums{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:18px}
 .repnum{border:1px solid var(--trust-gray-light);padding:12px 14px}
 .repnum b{display:block;font-family:Lora,serif;font-size:28px;font-weight:600;color:var(--trust-green);line-height:1.05}
 .repnum span{font-size:11px;color:var(--trust-gray)}
-.repnum.s b{color:var(--st-seg)}.repnum.c b{color:var(--st-cita)}.repnum.a b{color:#B8951D}.repnum.v b{color:var(--st-venta)}.repnum.p b{color:var(--st-perd)}
+.repnum.n b{color:var(--st-nc)}.repnum.s b{color:var(--st-seg)}.repnum.c b{color:var(--st-cita)}.repnum.a b{color:#B8951D}.repnum.v b{color:var(--st-venta)}.repnum.p b{color:var(--st-perd)}
 .repgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
 .repbox{border:1px solid var(--trust-gray-light);padding:14px 16px}
 .repbox h2{font-size:15px;margin-bottom:8px}
@@ -363,7 +365,7 @@ td.m{color:var(--trust-gray)}
       <select id="bTipoF" class="sbtn" onchange="basePage=0;renderBase()"><option value="">Tipo: todos</option><option>Directo</option><option>Broker</option></select>
       <input type="date" id="bD1" class="sbtn" style="background-image:none;padding-right:10px" onchange="basePage=0;renderBase()" title="Desde"> <span class="hint">a</span>
       <input type="date" id="bD2" class="sbtn" style="background-image:none;padding-right:10px" onchange="basePage=0;renderBase()" title="Hasta">
-      <select id="bEstF" class="sbtn" onchange="basePage=0;renderBase()"><option value="">Estatus: todos</option><option value="sin">Sin estatus</option><option value="seguimiento">Seguimiento</option><option value="cita">Cita realizada</option><option value="apartado">Apartado</option><option value="venta">Venta</option><option value="perdido">Perdido</option></select>
+      <select id="bEstF" class="sbtn" onchange="basePage=0;renderBase()"><option value="">Estatus: todos</option><option value="sin">Sin estatus</option><option value="nc">No contestó</option><option value="seguimiento">Seguimiento</option><option value="cita">Cita realizada</option><option value="apartado">Apartado</option><option value="venta">Venta</option><option value="perdido">Perdido</option></select>
       <button class="btn2 clear" id="bClear" onclick="clearBase()">Quitar filtros</button>
     </div>
     <div class="card"><div id="baseList"></div></div>
@@ -434,7 +436,7 @@ td.m{color:var(--trust-gray)}
       <select id="aProyF" class="sbtn" onchange="asePage=0;renderAse()"><option value="">Proyecto: todos</option></select>
       <select id="aCanalF" class="sbtn" onchange="asePage=0;renderAse()"><option value="">Canal: todos</option></select>
       <select id="aTipoF" class="sbtn" onchange="asePage=0;renderAse()"><option value="">Tipo: todos</option><option>Directo</option><option>Broker</option></select>
-      <select id="aEstF" class="sbtn" onchange="asePage=0;renderAse()"><option value="">Estatus: todos</option><option value="sin">Sin estatus</option><option value="seguimiento">Seguimiento</option><option value="cita">Cita realizada</option><option value="apartado">Apartado</option><option value="venta">Venta</option><option value="perdido">Perdido</option></select>
+      <select id="aEstF" class="sbtn" onchange="asePage=0;renderAse()"><option value="">Estatus: todos</option><option value="sin">Sin estatus</option><option value="nc">No contestó</option><option value="seguimiento">Seguimiento</option><option value="cita">Cita realizada</option><option value="apartado">Apartado</option><option value="venta">Venta</option><option value="perdido">Perdido</option></select>
       <button class="btn2 clear" id="aClear" onclick="clearAseF()">Quitar filtros</button>
     </div>
     <div class="kpis k5">
@@ -526,7 +528,7 @@ async function patch(id, fields){
   const l=leads.find(x=>x.id===id); Object.assign(l, fields);
   if (!sb) localStorage.setItem(LS, JSON.stringify(leads));
 }
-const ESTATUS=["cita","apartado","venta","seguimiento","perdido"];
+const ESTATUS=["nc","cita","apartado","venta","seguimiento","perdido"];
 async function toggleFlag(id, k){
   const l=leads.find(x=>x.id===id); if(!l) return;
   const f={}; ESTATUS.forEach(e=> f[e]=false);
@@ -675,8 +677,9 @@ function estatusDe(l){ return ESTATUS.find(k=>l[k]) || "sin"; }
 function tipoDe(l){ return l.tipo || (l.broker ? "Broker" : "Directo"); }
 function pct(n,d){ return d? Math.round(n/d*100)+"%" : "—"; }
 function funnel(id, rows){
-  const n=rows.length, c=rows.filter(l=>l.cita).length, a=rows.filter(l=>l.apartado).length, v=rows.filter(l=>l.venta).length, sg=rows.filter(l=>l.seguimiento).length, pd=rows.filter(l=>l.perdido).length;
+  const n=rows.length, c=rows.filter(l=>l.cita).length, a=rows.filter(l=>l.apartado).length, v=rows.filter(l=>l.venta).length, sg=rows.filter(l=>l.seguimiento).length, pd=rows.filter(l=>l.perdido).length, nc=rows.filter(l=>l.nc).length;
   document.getElementById(id).innerHTML=
+    `<div class="fun n"><b>${pct(nc,n)}</b><span>lead → no contestó</span><em>${nc} de ${n}</em></div>`+
     `<div class="fun s"><b>${pct(sg,n)}</b><span>lead → seguimiento</span><em>${sg} de ${n}</em></div>`+
     `<div class="fun c"><b>${pct(c,n)}</b><span>lead → cita</span><em>${c} de ${n}</em></div>`+
     `<div class="fun a"><b>${pct(a,n)}</b><span>lead → apartado</span><em>${a} de ${n}</em></div>`+
@@ -695,18 +698,18 @@ function proj(id, rows){
 function convTipo(id, rows){
   const box=document.getElementById(id);
   if(!rows.length){ box.innerHTML=`<p class="empty">Sin leads en este periodo.</p>`; return; }
-  box.innerHTML=`<table class="cross"><tr><th>Tipo</th><th>Leads</th><th>Seguim.</th><th>Cita</th><th>Apartado</th><th>Venta</th><th>Perdidos</th></tr>`+
-    TIPOS.map(k=>{ const r=rows.filter(l=>tipoDe(l)===k), n=r.length; if(!n) return `<tr><td>${k}</td><td>0</td><td class="z">—</td><td class="z">—</td><td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>`;
-      const c=r.filter(l=>l.cita).length,a=r.filter(l=>l.apartado).length,v=r.filter(l=>l.venta).length,sg=r.filter(l=>l.seguimiento).length,pd=r.filter(l=>l.perdido).length;
-      return `<tr><td>${k}</td><td>${n}</td><td class="${sg?"":"z"}">${pct(sg,n)}</td><td class="${c?"":"z"}">${pct(c,n)}</td><td class="${a?"":"z"}">${pct(a,n)}</td><td class="tot">${pct(v,n)}</td><td class="${pd?"":"z"}">${pct(pd,n)}</td></tr>`; }).join("")+`</table>`;
+  box.innerHTML=`<table class="cross"><tr><th>Tipo</th><th>Leads</th><th>NC</th><th>Seguim.</th><th>Cita</th><th>Apartado</th><th>Venta</th><th>Perdidos</th></tr>`+
+    TIPOS.map(k=>{ const r=rows.filter(l=>tipoDe(l)===k), n=r.length; if(!n) return `<tr><td>${k}</td><td>0</td><td class="z">—</td><td class="z">—</td><td class="z">—</td><td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>`;
+      const c=r.filter(l=>l.cita).length,a=r.filter(l=>l.apartado).length,v=r.filter(l=>l.venta).length,sg=r.filter(l=>l.seguimiento).length,pd=r.filter(l=>l.perdido).length,nc=r.filter(l=>l.nc).length;
+      return `<tr><td>${k}</td><td>${n}</td><td class="${nc?"":"z"}">${pct(nc,n)}</td><td class="${sg?"":"z"}">${pct(sg,n)}</td><td class="${c?"":"z"}">${pct(c,n)}</td><td class="${a?"":"z"}">${pct(a,n)}</td><td class="tot">${pct(v,n)}</td><td class="${pd?"":"z"}">${pct(pd,n)}</td></tr>`; }).join("")+`</table>`;
 }
 function convAse(rows){
   const box=document.getElementById("convAse");
   const s=count(rows,"asesor");
   if(!s.length){ box.innerHTML=`<p class="empty">Sin leads en este periodo.</p>`; return; }
-  box.innerHTML=`<table class="cross"><tr><th>Asesor</th><th>Leads</th><th>Seguim.</th><th>Cita</th><th>Apartado</th><th>Venta</th><th>Perdidos</th></tr>`+
-    s.map(([k,n])=>{ const r=rows.filter(l=>l.asesor===k); const c=r.filter(l=>l.cita).length,a=r.filter(l=>l.apartado).length,v=r.filter(l=>l.venta).length,sg=r.filter(l=>l.seguimiento).length,pd=r.filter(l=>l.perdido).length;
-      return `<tr><td>${esc(k)}</td><td>${n}</td><td class="${sg?"":"z"}">${pct(sg,n)}</td><td class="${c?"":"z"}">${pct(c,n)}</td><td class="${a?"":"z"}">${pct(a,n)}</td><td class="tot">${pct(v,n)}</td><td class="${pd?"":"z"}">${pct(pd,n)}</td></tr>`; }).join("")+`</table>`;
+  box.innerHTML=`<table class="cross"><tr><th>Asesor</th><th>Leads</th><th>NC</th><th>Seguim.</th><th>Cita</th><th>Apartado</th><th>Venta</th><th>Perdidos</th></tr>`+
+    s.map(([k,n])=>{ const r=rows.filter(l=>l.asesor===k); const c=r.filter(l=>l.cita).length,a=r.filter(l=>l.apartado).length,v=r.filter(l=>l.venta).length,sg=r.filter(l=>l.seguimiento).length,pd=r.filter(l=>l.perdido).length,nc=r.filter(l=>l.nc).length;
+      return `<tr><td>${esc(k)}</td><td>${n}</td><td class="${nc?"":"z"}">${pct(nc,n)}</td><td class="${sg?"":"z"}">${pct(sg,n)}</td><td class="${c?"":"z"}">${pct(c,n)}</td><td class="${a?"":"z"}">${pct(a,n)}</td><td class="tot">${pct(v,n)}</td><td class="${pd?"":"z"}">${pct(pd,n)}</td></tr>`; }).join("")+`</table>`;
 }
 
 /* ===== Vista de proyecto ===== */
@@ -801,13 +804,13 @@ function renderBase(){
   const page=rows.slice(basePage*PER, basePage*PER+PER);
   const fl=(l,k,lab,cls)=>`<button class="flag ${l[k]?"on":""} ${cls||""}" onclick="toggleFlag(${JSON.stringify(l.id)},'${k}')">${lab}</button>`;
   box.innerHTML=`<table><tr><th><button class="lnk" style="font-size:11px;color:var(--trust-gray)" onclick="baseAsc=!baseAsc;renderBase()">Fecha ${baseAsc?"↑":"↓"}</button></th><th>Nombre</th><th>Canal</th><th>Proyecto</th><th>Asesor</th><th>Estatus</th><th></th></tr>`+
-    page.map(l=>`<tr><td class="m">${fmt(l.fecha)}/${l.fecha.slice(2,4)}</td><td class="n">${esc(l.nombre)}${tipoDe(l)==="Broker"?' <span class="tag">broker</span>':''}</td><td>${esc(l.canal)}</td><td>${esc(l.proyecto)}</td><td>${asesorSel(l)}</td><td><div class="flags">${fl(l,"seguimiento","Seg.","s")}${fl(l,"cita","Cita","c")}${fl(l,"apartado","Apart.","a")}${fl(l,"venta","Venta","v")}${fl(l,"perdido","Perd.","p")}</div></td><td><button class="x" title="Borrar este lead" onclick="del(${JSON.stringify(l.id)})">×</button></td></tr>`).join("")+`</table>`+
+    page.map(l=>`<tr><td class="m">${fmt(l.fecha)}/${l.fecha.slice(2,4)}</td><td class="n">${esc(l.nombre)}${tipoDe(l)==="Broker"?' <span class="tag">broker</span>':''}</td><td>${esc(l.canal)}</td><td>${esc(l.proyecto)}</td><td>${asesorSel(l)}</td><td><div class="flags">${fl(l,"nc","NC","n")}${fl(l,"seguimiento","Seg.","s")}${fl(l,"cita","Cita","c")}${fl(l,"apartado","Apart.","a")}${fl(l,"venta","Venta","v")}${fl(l,"perdido","Perd.","p")}</div></td><td><button class="x" title="Borrar este lead" onclick="del(${JSON.stringify(l.id)})">×</button></td></tr>`).join("")+`</table>`+
     (pages>1?`<div class="pager"><span>${basePage*PER+1}–${Math.min(rows.length,(basePage+1)*PER)} de ${rows.length}</span><div><button ${basePage===0?"disabled":""} onclick="basePage--;renderBase()">Anteriores</button><button ${basePage>=pages-1?"disabled":""} onclick="basePage++;renderBase()">Siguientes</button></div></div>`:"");
 }
 function exportBase(){
   const rows=baseRows(); if(!rows.length){ toast("No hay leads que exportar", true); return; }
   const head=["fecha","nombre","telefono","canal","proyecto","asesor","tipo","estatus"];
-  const est={sin:"",seguimiento:"Seguimiento",cita:"Cita realizada",apartado:"Apartado",venta:"Venta",perdido:"Perdido"};
+  const est={sin:"",nc:"No contestó",seguimiento:"Seguimiento",cita:"Cita realizada",apartado:"Apartado",venta:"Venta",perdido:"Perdido"};
   const csv=[head.join(",")].concat(rows.map(l=> head.map(h=> `"${String(h==="tipo"?tipoDe(l):h==="estatus"?est[estatusDe(l)]:(l[h]??"")).replace(/"/g,'""')}"`).join(","))).join("\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"})); a.download=`leads_base_${todayISO()}.csv`; a.click();
 }
@@ -840,9 +843,9 @@ function repBars(entries){
 }
 function repAsesor(name, a, b){
   const rows=leads.filter(l=> l.asesor===name && l.fecha>=a && l.fecha<=b);
-  const n=rows.length, sg=rows.filter(l=>l.seguimiento).length, c=rows.filter(l=>l.cita).length, ap=rows.filter(l=>l.apartado).length, v=rows.filter(l=>l.venta).length, pd=rows.filter(l=>l.perdido).length;
+  const n=rows.length, nc=rows.filter(l=>l.nc).length, sg=rows.filter(l=>l.seguimiento).length, c=rows.filter(l=>l.cita).length, ap=rows.filter(l=>l.apartado).length, v=rows.filter(l=>l.venta).length, pd=rows.filter(l=>l.perdido).length;
   const pend=leads.filter(l=> l.asesor===name && !l.venta && !l.perdido && !l.apartado && l.fecha>=a && l.fecha<=b).sort((x,y)=>x.fecha.localeCompare(y.fecha));
-  const estado=l=> l.seguimiento?"Seguimiento": l.cita?"Cita realizada":"Sin estatus";
+  const estado=l=> l.nc?"No contestó": l.seguimiento?"Seguimiento": l.cita?"Cita realizada":"Sin estatus";
   return `<div class="rep">
     <div class="rephead">
       <div><h1>${esc(name)}</h1><p class="sub">Cierre de semana · ${fmtLong(a)} – ${fmtLong(b)}</p></div>
@@ -850,6 +853,7 @@ function repAsesor(name, a, b){
     </div>
     <div class="repnums">
       <div class="repnum"><b>${n}</b><span>leads asignados</span></div>
+      <div class="repnum n"><b>${nc}</b><span>no contestó</span></div>
       <div class="repnum s"><b>${sg}</b><span>en seguimiento</span></div>
       <div class="repnum c"><b>${c}</b><span>citas realizadas</span></div>
       <div class="repnum a"><b>${ap}</b><span>apartados</span></div>
@@ -941,13 +945,13 @@ function renderAse(){
   const page=rows.slice(asePage*PER, asePage*PER+PER);
   const fl=(l,k,lab,cls)=>`<button class="flag ${l[k]?"on":""} ${cls||""}" onclick="toggleFlag(${JSON.stringify(l.id)},'${k}')">${lab}</button>`;
   list.innerHTML=`<table><tr><th>Fecha</th><th>Nombre</th><th>Teléfono</th><th>Canal</th><th>Proyecto</th><th>Estatus</th><th></th></tr>`+
-    page.map(l=>`<tr><td class="m">${fmt(l.fecha)}</td><td class="n">${esc(l.nombre)}${tipoDe(l)==="Broker"?' <span class="tag">broker</span>':''}</td><td class="m">${esc(l.telefono||"—")}</td><td>${esc(l.canal)}</td><td>${esc(l.proyecto)}</td><td><div class="flags">${fl(l,"seguimiento","Seg.","s")}${fl(l,"cita","Cita","c")}${fl(l,"apartado","Apart.","a")}${fl(l,"venta","Venta","v")}${fl(l,"perdido","Perd.","p")}</div></td><td><button class="x" title="Borrar este lead" onclick="del(${JSON.stringify(l.id)})">×</button></td></tr>`).join("")+`</table>`+
+    page.map(l=>`<tr><td class="m">${fmt(l.fecha)}</td><td class="n">${esc(l.nombre)}${tipoDe(l)==="Broker"?' <span class="tag">broker</span>':''}</td><td class="m">${esc(l.telefono||"—")}</td><td>${esc(l.canal)}</td><td>${esc(l.proyecto)}</td><td><div class="flags">${fl(l,"nc","NC","n")}${fl(l,"seguimiento","Seg.","s")}${fl(l,"cita","Cita","c")}${fl(l,"apartado","Apart.","a")}${fl(l,"venta","Venta","v")}${fl(l,"perdido","Perd.","p")}</div></td><td><button class="x" title="Borrar este lead" onclick="del(${JSON.stringify(l.id)})">×</button></td></tr>`).join("")+`</table>`+
     (pages>1?`<div class="pager"><span>${asePage*PER+1}–${Math.min(rows.length,(asePage+1)*PER)} de ${rows.length}</span><div><button ${asePage===0?"disabled":""} onclick="asePage--;renderAse()">Anteriores</button><button ${asePage>=pages-1?"disabled":""} onclick="asePage++;renderAse()">Siguientes</button></div></div>`:"");
 }
 
 function exportCSV(){
   const rows=inPeriod(); if(!rows.length){ toast("No hay leads en el periodo", true); return; }
-  const head=["fecha","nombre","telefono","canal","proyecto","asesor","tipo","cita","apartado","venta","seguimiento","perdido"];
+  const head=["fecha","nombre","telefono","canal","proyecto","asesor","tipo","nc","cita","apartado","venta","seguimiento","perdido"];
   const csv=[head.join(",")].concat(rows.map(l=> head.map(h=> `"${String(h==="tipo" ? tipoDe(l) : typeof l[h]==="boolean" ? (l[h]?"sí":"") : (l[h]??"")).replace(/"/g,'""')}"`).join(","))).join("\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"})); a.download=`leads_${range().join("_")}.csv`; a.click();
 }
